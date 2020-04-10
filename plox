@@ -1,0 +1,68 @@
+#!/usr/local/bin/python3
+
+import sys
+import argparse
+import readline
+from os import path
+from lib.parser import Parser
+from lib.scanner import Scanner
+
+def main():
+    parser = argparse.ArgumentParser(description="Welcome to Python LOX")
+    parser.add_argument('file', nargs='?')
+    parser.add_argument('--ast', action='store_true', help="Print AST")
+    args = parser.parse_args()
+
+    if args.file:
+        code = read_file(args.file)
+
+        if args.ast:
+            print_ast(code)
+        else:
+            result = run(code)
+
+            if result == False:
+                exit(1)
+
+    else:
+        run_repl()
+
+
+def run(code):
+    (tokens, scan_errors) = Scanner(code).scan()
+    for (line, message) in scan_errors:
+        print("scan error on line %d: %s" % (line, message))
+    if len(scan_errors) > 0:
+        return False
+
+    (ast, parse_errors) = Parser(tokens).parse()
+    for (token, message) in parse_errors:
+        print("parse error on line %d: %s" % (token.line, message))
+    if len(parse_errors) > 0:
+        return False
+
+    print(ast)
+
+def print_ast(code):
+    (tokens, scan_errors) = Scanner(code).scan()
+    (ast, parse_errors) = Parser(tokens).parse()
+    ast.show()
+
+def read_file(name):
+    if not path.exists(name):
+        print("error: file [%s] does not exist" % name)
+        exit(1)
+
+    with open(name) as file:
+        return file.read()
+
+def run_repl():
+    while True:
+        try:
+            code = input(":: ")
+            run(code)
+        except KeyboardInterrupt:
+            break
+
+if __name__ == "__main__":
+    main()
