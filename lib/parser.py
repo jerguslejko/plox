@@ -104,7 +104,7 @@ class Parser:
 
         while self.match_any(Type.QUESTION_MARK):
             then = self.comma()
-            self.consume(Type.COLON, "Expected colon!")
+            self.consume(Type.COLON, "Expected colon in ternary")
             nhet = self.ternary()
             expr = E.TernaryExpression(expr, then, nhet)
 
