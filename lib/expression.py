@@ -11,6 +11,13 @@ class Expression:
         return isinstance(self, type(other)) and vars(self) == vars(other)
 
 
+class TernaryExpression(Expression):
+    def __init__(self, test, then, neht):
+        self.test = test
+        self.then = then
+        self.neth = neht
+
+
 class BinaryExpression(Expression):
     def __init__(self, left, operator, right):
         self.left = left
