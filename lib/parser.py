@@ -32,16 +32,20 @@ primary        → NUMBER | STRING | "false" | "true" | "nil"
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
+        self.errors = []
         self.current = 0
 
     def parse(self):
-        expr = self.expression()
+        try:
+            expr = self.expression()
 
-        if not self.at_end():
-            raise ValueError("Unconsumed tokens: %s" %
-                             self.tokens[self.current:])
+            if not self.at_end():
+                raise ValueError("Unconsumed tokens: %s" %
+                                 self.tokens[self.current:])
 
-        return expr
+            return (expr, [])
+        except ParseError:
+            return (None, self.errors)
 
     def advance(self):
         self.current += 1
@@ -81,6 +85,7 @@ class Parser:
         raise self.error(self.peek(), message)
 
     def error(self, token, message):
+        self.errors.append((token, message))
         return ParseError()
 
     def check(self, type):
@@ -184,7 +189,7 @@ class Parser:
             self.consume(Type.RIGHT_PAREN, "Expected ')' after expression")
             return E.GroupingExpression(expr)
 
-        raise self.error(self.peek(), "Expected expession")
+        raise self.error(self.peek(), "Expected expression")
 
 
 class ParseError(RuntimeError):

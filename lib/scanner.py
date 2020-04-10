@@ -5,6 +5,7 @@ class Scanner:
     def __init__(self, source):
         self.source = source
         self.tokens = []
+        self.errors = []
         self.start = 0
         self.current = 0
         self.line = 1
@@ -16,7 +17,7 @@ class Scanner:
 
         self.tokens.append(Token(Type.EOF, "", None, self.line))
 
-        return self.tokens
+        return (self.tokens, self.errors)
 
     def scan_single(self):
         c = self.advance()
@@ -67,7 +68,7 @@ class Scanner:
         elif self.is_alpha(c):
             self.identifier()
         else:
-            raise ValueError("unknown lexeme: [%s]" % c)
+            self.error("Unrecognized character [%s]" % c)
 
     def string(self):
         while self.peek() != '"' and not self.at_end():
@@ -77,7 +78,8 @@ class Scanner:
             self.advance()
 
         if self.at_end():
-            raise ValueError("Unterminated string")
+            self.error("Unterminated string")
+            return
 
         self.advance()
 
@@ -172,3 +174,6 @@ class Scanner:
     def add_token(self, type, literal=None):
         self.tokens.append(
             Token(type, self.source[self.start:self.current], literal, self.line))
+
+    def error(self, message):
+        self.errors.append((self.line, message))

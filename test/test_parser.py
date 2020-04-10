@@ -214,23 +214,25 @@ class ParserTest(unittest.TestCase):
         )
 
     def test_it_throws_on_unconsumed_tokens(self):
-        try:
-            parse("1 +")
-        except ParseError:
-            return
+        (tokens, _) = Scanner("1 +").scan()
+        (ast, errors) = Parser(tokens).parse()
 
-        self.fail("Expected parse error")
+        self.assertEqual(None, ast)
+        self.assertEqual([
+            (Token(Type.EOF, "", None, 1), "Expected expression")
+        ], errors)
 
     def test_missing_closing_paren(self):
-        try:
-            parse("( 1")
-        except ParseError:
-            return
+        (tokens, _) = Scanner("( 1").scan()
+        (ast, errors) = Parser(tokens).parse()
 
-        self.fail("Expected parse error")
+        self.assertEqual(None, ast)
+        self.assertEqual([
+            (Token(Type.EOF, "", None, 1), "Expected ')' after expression")
+        ], errors)
 
 
 def parse(code):
-    tokens = Scanner(code).scan()
-
-    return Parser(tokens).parse()
+    (tokens, _) = Scanner(code).scan()
+    (ast, _) = Parser(tokens).parse()
+    return ast

@@ -8,7 +8,7 @@ class ScannerTest(unittest.TestCase):
         self.maxDiff = None
 
     def test_it_includes_eof(self):
-        tokens = Scanner("").scan()
+        (tokens, _) = Scanner("").scan()
 
         self.assertEqual([
             Token(Type.EOF, "", None, 1),
@@ -87,6 +87,18 @@ class ScannerTest(unittest.TestCase):
             Token(Type.WHILE, "while", None, 1),
         ], scan("and class else false for fun if nil or print return super this true var while"))
 
+    def test_it_reports_unterminated_string(self):
+        (tokens, errors) = Scanner('"hello').scan()
+
+        self.assertEqual([(1, 'Unterminated string')], errors)
+        self.assertEqual([], tokens[:-1])
+
+    def test_it_reports_unknown_char(self):
+        (tokens, errors) = Scanner('@').scan()
+
+        self.assertEqual([], tokens[:-1])
+        self.assertEqual([(1, 'Unrecognized character [@]')], errors)
+
 
 def scan(code):
-    return Scanner(code).scan()[0:-1]
+    return Scanner(code).scan()[0][:-1]
