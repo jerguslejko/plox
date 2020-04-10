@@ -1,3 +1,5 @@
+import os
+import tempfile
 from lib.token import Token, Type
 from lib.expression import BinaryExpression, UnaryExpression, LiteralExpression, GroupingExpression
 
@@ -26,8 +28,17 @@ def print_expr(expr):
             '%s -> %s' % (id(expr), id(expr.expression)),
         ] + print_expr(expr.expression)
 
-    raise ValueError("Expression [%s] not supported" % expr)
+    raise ValueError("Expression [%s] not supported" % type(expr))
 
 
 def print_ast(ast):
     return "digraph { %s }" % "; ".join(print_expr(ast))
+
+
+def show_ast(ast):
+    file = tempfile.NamedTemporaryFile(mode="w", delete=False)
+    file.write(print_ast(ast))
+    file.close()
+    cmd = "dot -Tpng -o %s.png %s && open %s.png" % (
+        file.name, file.name, file.name)
+    os.system(cmd)
