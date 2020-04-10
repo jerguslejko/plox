@@ -1,4 +1,4 @@
-from .token import Token, Type
+from lib.token import Token, Type
 
 
 class Scanner:

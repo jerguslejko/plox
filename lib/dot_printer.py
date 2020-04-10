@@ -1,5 +1,5 @@
-import expression as e
-from token import Token, Type
+from lib import expression as e
+from lib.token import Token, Type
 
 
 def print_expr(expr):
