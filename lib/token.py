@@ -28,6 +28,8 @@ class Type(Enum):
     SEMICOLON = auto()
     SLASH = auto()
     STAR = auto()
+    COLON = auto()
+    QUESTION_MARK = auto()
 
     # One or two character token
     BANG = auto()

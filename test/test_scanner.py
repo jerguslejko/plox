@@ -26,11 +26,14 @@ class ScannerTest(unittest.TestCase):
             Token(Type.PLUS, "+", None, 1),
             Token(Type.SEMICOLON, ";", None, 1),
             Token(Type.STAR, "*", None, 1),
+            Token(Type.SLASH, "/", None, 1),
             Token(Type.BANG, "!", None, 1),
             Token(Type.EQUAL, "=", None, 1),
             Token(Type.LESS, "<", None, 1),
             Token(Type.GREATER, ">", None, 1),
-        ], scan("( ) { } , . - + ; * ! = < >"))
+            Token(Type.QUESTION_MARK, "?", None, 1),
+            Token(Type.COLON, ":", None, 1),
+        ], scan("( ) { } , . - + ; * / ! = < > ? :"))
 
     def test_it_parses_double_char_tokens(self):
         self.assertEqual([

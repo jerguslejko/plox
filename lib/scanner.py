@@ -41,6 +41,12 @@ class Scanner:
             self.add_token(Type.SEMICOLON)
         elif c == "*":
             self.add_token(Type.STAR)
+        elif c == "/":
+            self.add_token(Type.SLASH)
+        elif c == "?":
+            self.add_token(Type.QUESTION_MARK)
+        elif c == ":":
+            self.add_token(Type.COLON)
         elif c == "!":
             self.add_token(Type.BANG_EQUAL if self.match("=") else Type.BANG)
         elif c == "=":
