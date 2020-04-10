@@ -50,8 +50,8 @@ def run(code):
     print(ast)
 
 def print_ast(code):
-    (tokens, scan_errors) = Scanner(code).scan()
-    (ast, parse_errors) = Parser(tokens).parse()
+    (tokens, _) = Scanner(code).scan()
+    (ast, _) = Parser(tokens).parse()
     ast.show()
 
 def read_file(name):
