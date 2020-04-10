@@ -1,6 +1,8 @@
 #!/usr/local/bin/python3
 
+import os
 import sys
+import stat
 import argparse
 import readline
 from os import path
@@ -25,7 +27,11 @@ def main():
                 exit(1)
 
     else:
-        run_repl()
+        # stdin is piped
+        if stat.S_ISFIFO(os.fstat(0).st_mode):
+            run("".join(sys.stdin.readlines()))
+        else:
+            run_repl()
 
 
 def run(code):
