@@ -15,7 +15,7 @@ class TernaryExpression(Expression):
     def __init__(self, test, then, neht):
         self.test = test
         self.then = then
-        self.neth = neht
+        self.neht = neht
 
 
 class BinaryExpression(Expression):
