@@ -14,7 +14,7 @@ class Scanner:
             self.start = self.current
             self.scan_single()
 
-        self.add_token(Type.EOF)
+        self.tokens.append(Token(Type.EOF, "", None, self.line))
 
         return self.tokens
 
