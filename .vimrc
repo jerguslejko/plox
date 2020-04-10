@@ -1,4 +1,5 @@
 nmap <cr> :w\|:call RunTest()<cr>
+nmap ,p :!python3<cr>
 
 function RunTest()
     let module = substitute(expand('%:t'), ".py", "", "g")
