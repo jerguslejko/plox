@@ -9,11 +9,10 @@ class Token:
         self.line = line
 
     def __repr__(self):
-        return "Token { type = %s, lexeme = %s, literal = %s, line = %s }" % (
-            self.type, self.lexeme, self.literal, self.line)
+        return "Token(%s)" % vars(self)
 
     def __eq__(self, other):
-        return self.type == other.type and self.lexeme == other.lexeme and self.literal == other.literal and self.line == other.line
+        return isinstance(self, type(other)) and vars(self) == vars(other)
 
 
 class Type(Enum):
@@ -64,5 +63,5 @@ class Type(Enum):
 
     EOF = auto()
 
-    def __str__(self):
-        return "TokenType { %s }" % self.name
+    def __repr__(self):
+        return "TokenType.%s" % self.name
