@@ -40,8 +40,7 @@ class Parser:
             expr = self.expression()
 
             if not self.at_end():
-                raise ValueError("Unconsumed tokens: %s" %
-                                 self.tokens[self.current:])
+                raise ValueError("Unconsumed tokens: %s" % self.tokens[self.current :])
 
             return (expr, [])
         except ParseError:
@@ -56,8 +55,7 @@ class Parser:
 
     def previous(self):
         if self.current == 0:
-            raise ValueError(
-                "cannot look at previous token when at position 0")
+            raise ValueError("cannot look at previous token when at position 0")
 
         return self.tokens[self.current - 1]
 
@@ -136,10 +134,8 @@ class Parser:
         expr = self.addition()
 
         while self.match_any(
-                Type.GREATER,
-                Type.GREATER_EQUAL,
-                Type.LESS,
-                Type.LESS_EQUAL):
+            Type.GREATER, Type.GREATER_EQUAL, Type.LESS, Type.LESS_EQUAL
+        ):
             operator = self.previous()
             right = self.addition()
 

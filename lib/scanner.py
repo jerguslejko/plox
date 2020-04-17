@@ -55,8 +55,7 @@ class Scanner:
         elif c == "<":
             self.add_token(Type.LESS_EQUAL if self.match("=") else Type.LESS)
         elif c == ">":
-            self.add_token(
-                Type.GREATER_EQUAL if self.match("=") else Type.GREATER)
+            self.add_token(Type.GREATER_EQUAL if self.match("=") else Type.GREATER)
         elif c == '"':
             self.string()
         elif c == " " or c == "\r" or c == "\t":
@@ -83,8 +82,7 @@ class Scanner:
 
         self.advance()
 
-        self.add_token(Type.STRING,
-                       self.source[self.start + 1:self.current - 1])
+        self.add_token(Type.STRING, self.source[self.start + 1 : self.current - 1])
 
     def number(self):
         is_float = False
@@ -99,7 +97,7 @@ class Scanner:
             while self.is_digit(self.peek()):
                 self.advance()
 
-        str_value = self.source[self.start:self.current]
+        str_value = self.source[self.start : self.current]
         value = float(str_value) if is_float else int(str_value)
 
         self.add_token(Type.NUMBER, value)
@@ -108,7 +106,7 @@ class Scanner:
         while self.is_alpha_numeric(self.peek()):
             self.advance()
 
-        keyword = self.source[self.start:self.current]
+        keyword = self.source[self.start : self.current]
 
         keywords = {
             "and": Type.AND,
@@ -135,10 +133,10 @@ class Scanner:
             self.add_token(Type.IDENTIFIER, keyword)
 
     def is_digit(self, n):
-        return n >= '0' and n <= '9'
+        return n >= "0" and n <= "9"
 
     def is_alpha(self, c):
-        return (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c == '_')
+        return (c >= "a" and c <= "z") or (c >= "A" and c <= "Z") or (c == "_")
 
     def is_alpha_numeric(self, c):
         return self.is_digit(c) or self.is_alpha(c)
@@ -158,7 +156,7 @@ class Scanner:
 
     def peek_next(self):
         if self.current + 1 >= len(self.source):
-            return '\0'
+            return "\0"
 
         return self.source[self.current + 1]
 
@@ -173,7 +171,8 @@ class Scanner:
 
     def add_token(self, type, literal=None):
         self.tokens.append(
-            Token(type, self.source[self.start:self.current], literal, self.line))
+            Token(type, self.source[self.start : self.current], literal, self.line)
+        )
 
     def error(self, message):
         self.errors.append((self.line, message))
