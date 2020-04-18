@@ -15,6 +15,6 @@ function RunTest()
     endif
 endfunction
 
-autocmd BufWritePost *.py silent! !black --quiet %
+autocmd BufWritePost *.py silent! !black --quiet % 2>/dev/null
 
 let g:ctrlp_custom_ignore = '__pycache__\|__init__.py\|DS_Store\|git'
