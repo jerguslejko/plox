@@ -18,6 +18,9 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(
             E.LiteralExpression("hello"), parse('"hello"'),
         )
+        self.assertEqual(
+            E.LiteralExpression("hello"), parse("'hello'"),
+        )
 
         self.assertEqual(
             E.LiteralExpression(True), parse("true"),

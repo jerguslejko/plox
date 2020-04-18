@@ -59,6 +59,7 @@ class ScannerTest(unittest.TestCase):
 
     def test_it_parses_strings(self):
         self.assertEqual([Token(Type.STRING, '"hello"', "hello", 1),], scan('"hello"'))
+        self.assertEqual([Token(Type.STRING, "'hello'", "hello", 1),], scan("'hello'"))
 
     def test_it_parses_numbers(self):
         self.assertEqual(

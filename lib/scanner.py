@@ -57,7 +57,9 @@ class Scanner:
         elif c == ">":
             self.add_token(Type.GREATER_EQUAL if self.match("=") else Type.GREATER)
         elif c == '"':
-            self.string()
+            self.string('"')
+        elif c == "'":
+            self.string("'")
         elif c == " " or c == "\r" or c == "\t":
             pass
         elif c == "\n":
@@ -69,8 +71,8 @@ class Scanner:
         else:
             self.error("Unrecognized character [%s]" % c)
 
-    def string(self):
-        while self.peek() != '"' and not self.at_end():
+    def string(self, quote):
+        while self.peek() != quote and not self.at_end():
             if self.peek() == "\n":
                 self.line += 1
 
