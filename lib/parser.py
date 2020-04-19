@@ -107,25 +107,14 @@ class Parser:
         return self.ternary()
 
     def ternary(self):
-        expr = self.comma()
+        expr = self.equality()
 
         while self.match_any(Type.QUESTION_MARK):
             operator = self.previous()
-            then = self.comma()
+            then = self.equality()
             self.consume(Type.COLON, "Expected colon in ternary")
             nhet = self.ternary()
             expr = E.TernaryExpression(expr, operator, then, nhet)
-
-        return expr
-
-    def comma(self):
-        expr = self.equality()
-
-        while self.match_any(Type.COMMA):
-            operator = self.previous()
-            right = self.equality()
-
-            expr = E.BinaryExpression(expr, operator, right)
 
         return expr
 

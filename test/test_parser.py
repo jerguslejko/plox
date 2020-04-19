@@ -171,16 +171,6 @@ class ParserTest(unittest.TestCase):
             parse_expr("1 + 2 * 3 / -4 + (5 * !true)"),
         )
 
-    def test_it_parses_comma_expressions(self):
-        self.assertEqual(
-            E.BinaryExpression(
-                E.LiteralExpression(1),
-                Token(Type.COMMA, ",", None, 1),
-                E.LiteralExpression(2),
-            ),
-            parse_expr("1,2"),
-        )
-
     def test_it_parses_ternary(self):
         self.assertEqual(
             E.TernaryExpression(
