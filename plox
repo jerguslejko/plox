@@ -8,6 +8,7 @@ import readline
 from os import path
 from lib.parser import Parser
 from lib.scanner import Scanner
+from lib.interpreter import Interpreter
 
 def main():
     parser = argparse.ArgumentParser(description="Welcome to Python LOX")
@@ -47,7 +48,12 @@ def run(code):
     if len(parse_errors) > 0:
         return False
 
-    print(ast)
+    (result, e) = Interpreter(ast).interpret()
+    if e != None:
+        print("runtime error on line %d: %s" % (e.token.line, e.message))
+        return False
+
+    print(result)
 
 def print_ast(code):
     (tokens, _) = Scanner(code).scan()
