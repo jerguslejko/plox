@@ -2,6 +2,7 @@ import lib.ast as ast
 from lib.token import Type
 from lib.error import ParseError
 from lib.scanner import Scanner
+from lib.ast import ExpressionStatement
 
 
 class Parser:
@@ -252,4 +253,9 @@ class Parser:
 
     @staticmethod
     def parse_expr(code):
-        return Parser.parse_code(f"{code};").statements[0].expression
+        statement = Parser.parse_code(f"{code};").statements[0]
+
+        if not isinstance(statement, ExpressionStatement):
+            raise ParseError(None, "Failed parsing expression")
+
+        return statement.expression
