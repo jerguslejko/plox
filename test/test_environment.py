@@ -51,3 +51,39 @@ class EnvironmentTest(unittest.TestCase):
             pass
         else:
             self.fail("Expected exception")
+
+    def test_it_gives_birth(self):
+        env = Environment()
+        child = env.child()
+
+        self.assertEqual(env, child.parent)
+
+    def test_it_allows_shadowing_by_child(self):
+        env = Environment()
+        env.define(identifier("foo"), 5)
+
+        child = env.child()
+        child.define(identifier("foo"), 6)
+
+        self.assertEqual(5, env.get(identifier("foo")))
+        self.assertEqual(6, child.get(identifier("foo")))
+
+    def test_it_get_value_from_parent_if_not_present(self):
+        env = Environment()
+        env.define(identifier("foo"), 5)
+
+        child = env.child()
+
+        self.assertEqual(5, env.get(identifier("foo")))
+        self.assertEqual(5, child.get(identifier("foo")))
+
+    def test_it_proprages_assignment(self):
+        env = Environment()
+        env.define(identifier("foo"), 5)
+
+        child = env.child()
+
+        child.assign(identifier("foo"), 10)
+
+        self.assertEqual(10, env.get(identifier("foo")))
+        self.assertEqual(10, child.get(identifier("foo")))
