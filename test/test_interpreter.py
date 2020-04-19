@@ -59,20 +59,30 @@ class InterpreterTest(unittest.TestCase):
         self.assertEqual(1, evaluate_expr("!false ? 1 : 2"))
 
     def test_it_validates_types(self):
-        self.assertError(
+        def assertError(message, program):
+            threw = False
+
+            try:
+                program()
+            except TypeError as error:
+                threw = True
+                self.assertEqual(message, error.message)
+
+            self.assertTrue(threw, "Expected code to error")
+
+        assertError(
             "Operand of (-) must be of type number, nil given",
             lambda: evaluate_expr("-nil"),
         )
-
-        self.assertError(
+        assertError(
             "Operand of (!) must be of type bool, number given",
             lambda: evaluate_expr("!2.3"),
         )
-        self.assertError(
+        assertError(
             "Operands of (+) must be of the same type. number and string given",
             lambda: evaluate_expr("1 + 'foo'"),
         )
-        self.assertError(
+        assertError(
             "Operands of (+) must be of type number or string, bool given",
             lambda: evaluate_expr("true + false"),
         )
@@ -107,17 +117,6 @@ class InterpreterTest(unittest.TestCase):
             pass
         else:
             self.fail("Expected exception")
-
-    def assertError(self, message, program):
-        threw = False
-
-        try:
-            program()
-        except TypeError as error:
-            threw = True
-            self.assertEqual(message, error.message)
-
-        self.assertTrue(threw, "Expected code to error")
 
 
 def evaluate_expr(code):
