@@ -61,7 +61,8 @@ class Parser:
 
     def synchronize(self, e):
         while not self.at_end():
-            if self.previous().type == Type.SEMICOLON:
+            if self.peek().type == Type.SEMICOLON:
+                self.advance()
                 return
 
             if self.peek().type in (
