@@ -81,7 +81,8 @@ class InterpreterTest(unittest.TestCase):
         (ast, _) = Parser(tokens).parse()
         interpreter = Interpreter(ast)
         interpreter.interpret()
-        interpreter.evaluate(VariableExpression(identifier("a")))
+        value = interpreter.evaluate(VariableExpression(identifier("a")))
+        self.assertEqual(4, value)
 
     def assertError(self, message, program):
         threw = False
