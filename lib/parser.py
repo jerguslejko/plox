@@ -5,7 +5,9 @@ from lib.error import ParseError
 """
 GRAMMAR:
 
-program    → statement* EOF
+program    → declaration* EOF
+declaration → var_declaration | statement;
+var_declaration → "var" IDENTIFIER ("=" expression) ";"
 statement  → expr_stmt | print_stmt
 print_stmt → "print" expression ";"
 expr_stmt  → expression ";"
@@ -30,12 +32,7 @@ class Parser:
 
     def parse(self):
         try:
-            statements = []
-
-            while not self.at_end():
-                statements.append(self.program())
-
-            return (ast.Program(statements), [])
+            return (self.program(), [])
         except ParseError:
             return (None, self.errors)
 
@@ -88,12 +85,20 @@ class Parser:
     """ Rules """
 
     def program(self):
+        statements = []
+
+        while not self.at_end():
+            statements.append(self.statement())
+
+        return ast.Program(statements)
+
+    def statement(self):
         if self.match_any(Type.PRINT):
             return self.print_statement()
 
-        return self.statement()
+        return self.expression_statement()
 
-    def statement(self):
+    def expression_statement(self):
         expr = self.expression()
         self.consume(Type.SEMICOLON, "Expected semicolon after statement")
         return ast.ExpressionStatement(expr)
