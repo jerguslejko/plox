@@ -5,6 +5,7 @@ import sys
 import stat
 import argparse
 import readline
+from pprint import pprint
 from os import path
 from lib.parser import Parser
 from lib.scanner import Scanner
@@ -15,64 +16,52 @@ def main():
     parser = argparse.ArgumentParser(description="Welcome to Python LOX")
     parser.add_argument('file', nargs='?')
     parser.add_argument('--ast', action='store_true', help="Print AST")
+    parser.add_argument('--tokens', action='store_true', help="Print token stream")
     args = parser.parse_args()
 
     if args.file:
         code = read_file(args.file)
 
-        if args.ast:
-            print_ast(code)
-        else:
-            result = run(code)
+        result = run(code, print_ast=args.ast, print_tokens=args.tokens)
 
-            if result == False:
-                exit(1)
+        if result == False:
+            exit(1)
 
     else:
         # stdin is piped
         if stat.S_ISFIFO(os.fstat(0).st_mode):
             code = "".join(sys.stdin.readlines())
 
-            if args.ast:
-                print_ast(code)
-            else:
-                run(code)
+            run(code, print_ast=args.ast, print_tokens=args.tokens)
         else:
             run_repl()
 
 
-def run(code):
+def run(code, print_ast=False, print_tokens=False):
     (tokens, scan_errors) = Scanner(code).scan()
     for error in scan_errors:
         print(error)
     if len(scan_errors) > 0:
-        return
+        return False
+
+    if print_tokens:
+        pprint(tokens)
+        return True
 
     (ast, parse_errors) = Parser(tokens).parse()
     for error in parse_errors:
         print(error)
     if len(parse_errors) > 0:
-        return
+        return False
+
+    if print_ast:
+        ast.show()
+        return True
 
     try:
         Interpreter(ast).interpret()
     except RuntimeError as e:
         print(e)
-
-def print_ast(code):
-    (tokens, scan_errors) = Scanner(code).scan()
-    for error in scan_errors:
-        print(error)
-    if len(scan_errors) > 0:
-        return
-
-    (ast, parse_errors) = Parser(tokens).parse()
-    for error in parse_errors:
-        print(error)
-    if len(parse_errors) > 0:
-        return
-
-    ast.show()
 
 def read_file(name):
     if not path.exists(name):
