@@ -45,7 +45,7 @@ class Parser:
         return self.tokens[self.current].type == Type.EOF
 
     def consume(self, type, message):
-        if self.check(type):
+        if self.matches(type):
             return self.advance()
 
         raise self.error(self.peek(), message)
@@ -54,12 +54,6 @@ class Parser:
         error = ParseError(token, message)
         self.errors.append(error)
         return error
-
-    def check(self, type):
-        if self.at_end():
-            return False
-
-        return self.peek().type == type
 
     def synchronize(self, e):
         while not self.at_end():
@@ -125,7 +119,7 @@ class Parser:
     def block(self):
         statements = []
 
-        while not self.at_end() and not self.check(Type.RIGHT_BRACE):
+        while not self.at_end() and not self.matches(Type.RIGHT_BRACE):
             statements.append(self.declaration())
 
         self.consume(Type.RIGHT_BRACE, "Expected closing brace")
