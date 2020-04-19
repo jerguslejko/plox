@@ -1,7 +1,9 @@
 from lib.token import Type
 from lib.stringify import stringify, stringify_type, stringify_types
-from lib.statement import Program, ExpressionStatement, PrintStatement
-from lib.expression import (
+from lib.ast import (
+    Program,
+    ExpressionStatement,
+    PrintStatement,
     BinaryExpression,
     UnaryExpression,
     LiteralExpression,

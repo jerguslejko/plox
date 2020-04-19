@@ -2,8 +2,9 @@ import os
 import tempfile
 from functools import reduce
 from lib.token import Token, Type
-from lib.statement import ExpressionStatement, PrintStatement
-from lib.expression import (
+from lib.ast import (
+    ExpressionStatement,
+    PrintStatement,
     BinaryExpression,
     UnaryExpression,
     LiteralExpression,

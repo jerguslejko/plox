@@ -1,6 +1,5 @@
+import lib.ast as ast
 from lib.token import Type
-from lib import expression as E
-from lib import statement as S
 
 """
 GRAMMAR:
@@ -35,7 +34,7 @@ class Parser:
             while not self.at_end():
                 statements.append(self.program())
 
-            return (S.Program(statements), [])
+            return (ast.Program(statements), [])
         except ParseError:
             return (None, self.errors)
 
@@ -96,12 +95,12 @@ class Parser:
     def statement(self):
         expr = self.expression()
         self.consume(Type.SEMICOLON, "Expected semicolon after statement")
-        return S.ExpressionStatement(expr)
+        return ast.ExpressionStatement(expr)
 
     def print_statement(self):
         expr = self.expression()
         self.consume(Type.SEMICOLON, "Expected semicolon after statement")
-        return S.PrintStatement(expr)
+        return ast.PrintStatement(expr)
 
     def expression(self):
         return self.ternary()
@@ -114,7 +113,7 @@ class Parser:
             then = self.equality()
             self.consume(Type.COLON, "Expected colon in ternary")
             nhet = self.ternary()
-            expr = E.TernaryExpression(expr, operator, then, nhet)
+            expr = ast.TernaryExpression(expr, operator, then, nhet)
 
         return expr
 
@@ -125,7 +124,7 @@ class Parser:
             operator = self.previous()
             right = self.comparison()
 
-            expr = E.BinaryExpression(expr, operator, right)
+            expr = ast.BinaryExpression(expr, operator, right)
 
         return expr
 
@@ -138,7 +137,7 @@ class Parser:
             operator = self.previous()
             right = self.addition()
 
-            expr = E.BinaryExpression(expr, operator, right)
+            expr = ast.BinaryExpression(expr, operator, right)
 
         return expr
 
@@ -149,7 +148,7 @@ class Parser:
             operator = self.previous()
             right = self.multiplication()
 
-            expr = E.BinaryExpression(expr, operator, right)
+            expr = ast.BinaryExpression(expr, operator, right)
 
         return expr
 
@@ -160,29 +159,29 @@ class Parser:
             operator = self.previous()
             right = self.unary()
 
-            expr = E.BinaryExpression(expr, operator, right)
+            expr = ast.BinaryExpression(expr, operator, right)
 
         return expr
 
     def unary(self):
         if self.match_any(Type.BANG, Type.MINUS):
-            return E.UnaryExpression(self.previous(), self.unary())
+            return ast.UnaryExpression(self.previous(), self.unary())
 
         return self.primary()
 
     def primary(self):
         if self.match_any(Type.TRUE):
-            return E.LiteralExpression(True)
+            return ast.LiteralExpression(True)
         if self.match_any(Type.FALSE):
-            return E.LiteralExpression(False)
+            return ast.LiteralExpression(False)
         if self.match_any(Type.NIL):
-            return E.LiteralExpression(None)
+            return ast.LiteralExpression(None)
         if self.match_any(Type.NUMBER, Type.STRING):
-            return E.LiteralExpression(self.previous().literal)
+            return ast.LiteralExpression(self.previous().literal)
         if self.match_any(Type.LEFT_PAREN):
             expr = self.expression()
             self.consume(Type.RIGHT_PAREN, "Expected ')' after expression")
-            return E.GroupingExpression(expr)
+            return ast.GroupingExpression(expr)
 
         raise self.error(self.peek(), "Expected expression")
 

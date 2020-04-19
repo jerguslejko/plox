@@ -2,7 +2,7 @@ import unittest
 from lib.parser import Parser, ParseError
 from lib.scanner import Scanner
 from lib.interpreter import Interpreter, TypeError
-from lib.statement import Program
+from lib.ast import Program
 
 
 class InterpreterTest(unittest.TestCase):

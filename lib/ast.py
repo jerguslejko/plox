@@ -1,4 +1,4 @@
-class Expression:
+class AST:
     def show(self):
         from lib.dot_printer import show_ast
 
@@ -9,6 +9,29 @@ class Expression:
 
     def __eq__(self, other):
         return isinstance(self, type(other)) and vars(self) == vars(other)
+
+
+class Program(AST):
+    def __init__(self, statements):
+        self.statements = statements
+
+
+class Statement(AST):
+    pass
+
+
+class ExpressionStatement(Statement):
+    def __init__(self, expression):
+        self.expression = expression
+
+
+class PrintStatement(Statement):
+    def __init__(self, expression):
+        self.expression = expression
+
+
+class Expression(AST):
+    pass
 
 
 class TernaryExpression(Expression):

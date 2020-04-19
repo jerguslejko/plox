@@ -1,169 +1,168 @@
 import unittest
+import lib.ast as ast
 from lib.parser import Parser, ParseError
 from lib.scanner import Scanner
 from lib.token import Token, Type
-import lib.expression as E
-import lib.statement as S
 
 
 class ParserTest(unittest.TestCase):
     def test_it_parses_literals(self):
         self.assertEqual(
-            E.LiteralExpression(1), parse_expr("1"),
+            ast.LiteralExpression(1), parse_expr("1"),
         )
 
         self.assertEqual(
-            E.LiteralExpression(1.2), parse_expr("1.2"),
+            ast.LiteralExpression(1.2), parse_expr("1.2"),
         )
 
         self.assertEqual(
-            E.LiteralExpression("hello"), parse_expr('"hello"'),
+            ast.LiteralExpression("hello"), parse_expr('"hello"'),
         )
         self.assertEqual(
-            E.LiteralExpression("hello"), parse_expr("'hello'"),
-        )
-
-        self.assertEqual(
-            E.LiteralExpression(True), parse_expr("true"),
+            ast.LiteralExpression("hello"), parse_expr("'hello'"),
         )
 
         self.assertEqual(
-            E.LiteralExpression(False), parse_expr("false"),
+            ast.LiteralExpression(True), parse_expr("true"),
         )
 
         self.assertEqual(
-            E.LiteralExpression(None), parse_expr("nil"),
+            ast.LiteralExpression(False), parse_expr("false"),
         )
 
         self.assertEqual(
-            E.GroupingExpression(E.LiteralExpression(1)), parse_expr("(1)")
+            ast.LiteralExpression(None), parse_expr("nil"),
+        )
+
+        self.assertEqual(
+            ast.GroupingExpression(ast.LiteralExpression(1)), parse_expr("(1)")
         )
 
     def test_it_parses_equality(self):
         self.assertEqual(
-            E.BinaryExpression(
-                E.LiteralExpression(1),
+            ast.BinaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.EQUAL_EQUAL, "==", None, 1),
-                E.LiteralExpression(1),
+                ast.LiteralExpression(1),
             ),
             parse_expr("1 == 1"),
         )
 
     def test_it_parses_comparison(self):
         self.assertEqual(
-            E.BinaryExpression(
-                E.LiteralExpression(1),
+            ast.BinaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.LESS, "<", None, 1),
-                E.LiteralExpression(1),
+                ast.LiteralExpression(1),
             ),
             parse_expr("1 < 1"),
         )
 
         self.assertEqual(
-            E.BinaryExpression(
-                E.LiteralExpression(1),
+            ast.BinaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.LESS_EQUAL, "<=", None, 1),
-                E.LiteralExpression(1),
+                ast.LiteralExpression(1),
             ),
             parse_expr("1 <= 1"),
         )
 
         self.assertEqual(
-            E.BinaryExpression(
-                E.LiteralExpression(1),
+            ast.BinaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.GREATER, ">", None, 1),
-                E.LiteralExpression(1),
+                ast.LiteralExpression(1),
             ),
             parse_expr("1 > 1"),
         )
 
         self.assertEqual(
-            E.BinaryExpression(
-                E.LiteralExpression(1),
+            ast.BinaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.GREATER_EQUAL, ">=", None, 1),
-                E.LiteralExpression(1),
+                ast.LiteralExpression(1),
             ),
             parse_expr("1 >= 1"),
         )
 
     def test_it_parses_addition(self):
         self.assertEqual(
-            E.BinaryExpression(
-                E.LiteralExpression(1),
+            ast.BinaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.PLUS, "+", None, 1),
-                E.LiteralExpression(1),
+                ast.LiteralExpression(1),
             ),
             parse_expr("1 + 1"),
         )
 
         self.assertEqual(
-            E.BinaryExpression(
-                E.LiteralExpression(1),
+            ast.BinaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.MINUS, "-", None, 1),
-                E.LiteralExpression(1),
+                ast.LiteralExpression(1),
             ),
             parse_expr("1 - 1"),
         )
 
     def test_it_parses_multiplicate(self):
         self.assertEqual(
-            E.BinaryExpression(
-                E.LiteralExpression(1),
+            ast.BinaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.STAR, "*", None, 1),
-                E.LiteralExpression(1),
+                ast.LiteralExpression(1),
             ),
             parse_expr("1 * 1"),
         )
 
         self.assertEqual(
-            E.BinaryExpression(
-                E.LiteralExpression(1),
+            ast.BinaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.SLASH, "/", None, 1),
-                E.LiteralExpression(1),
+                ast.LiteralExpression(1),
             ),
             parse_expr("1 / 1"),
         )
 
     def test_it_parses_unary(self):
         self.assertEqual(
-            E.UnaryExpression(
-                Token(Type.BANG, "!", None, 1), E.LiteralExpression(True),
+            ast.UnaryExpression(
+                Token(Type.BANG, "!", None, 1), ast.LiteralExpression(True),
             ),
             parse_expr("!true"),
         )
 
         self.assertEqual(
-            E.UnaryExpression(
-                Token(Type.MINUS, "-", None, 1), E.LiteralExpression(42),
+            ast.UnaryExpression(
+                Token(Type.MINUS, "-", None, 1), ast.LiteralExpression(42),
             ),
             parse_expr("-42"),
         )
 
     def test_it_respects_operator_precedence(self):
         self.assertEqual(
-            E.BinaryExpression(
-                E.BinaryExpression(
-                    E.LiteralExpression(1),
+            ast.BinaryExpression(
+                ast.BinaryExpression(
+                    ast.LiteralExpression(1),
                     Token(Type.PLUS, "+", None, 1),
-                    E.BinaryExpression(
-                        E.BinaryExpression(
-                            E.LiteralExpression(2),
+                    ast.BinaryExpression(
+                        ast.BinaryExpression(
+                            ast.LiteralExpression(2),
                             Token(Type.STAR, "*", None, 1),
-                            E.LiteralExpression(3),
+                            ast.LiteralExpression(3),
                         ),
                         Token(Type.SLASH, "/", None, 1),
-                        E.UnaryExpression(
-                            Token(Type.MINUS, "-", None, 1), E.LiteralExpression(4),
+                        ast.UnaryExpression(
+                            Token(Type.MINUS, "-", None, 1), ast.LiteralExpression(4),
                         ),
                     ),
                 ),
                 Token(Type.PLUS, "+", None, 1),
-                E.GroupingExpression(
-                    E.BinaryExpression(
-                        E.LiteralExpression(5),
+                ast.GroupingExpression(
+                    ast.BinaryExpression(
+                        ast.LiteralExpression(5),
                         Token(Type.STAR, "*", None, 1),
-                        E.UnaryExpression(
-                            Token(Type.BANG, "!", None, 1), E.LiteralExpression(True)
+                        ast.UnaryExpression(
+                            Token(Type.BANG, "!", None, 1), ast.LiteralExpression(True)
                         ),
                     )
                 ),
@@ -173,25 +172,25 @@ class ParserTest(unittest.TestCase):
 
     def test_it_parses_ternary(self):
         self.assertEqual(
-            E.TernaryExpression(
-                E.LiteralExpression(1),
+            ast.TernaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.QUESTION_MARK, "?", None, 1),
-                E.LiteralExpression(2),
-                E.LiteralExpression(3),
+                ast.LiteralExpression(2),
+                ast.LiteralExpression(3),
             ),
             parse_expr("1 ? 2 : 3"),
         )
 
         self.assertEqual(
-            E.TernaryExpression(
-                E.LiteralExpression(1),
+            ast.TernaryExpression(
+                ast.LiteralExpression(1),
                 Token(Type.QUESTION_MARK, "?", None, 1),
-                E.LiteralExpression(2),
-                E.TernaryExpression(
-                    E.LiteralExpression(3),
+                ast.LiteralExpression(2),
+                ast.TernaryExpression(
+                    ast.LiteralExpression(3),
                     Token(Type.QUESTION_MARK, "?", None, 1),
-                    E.LiteralExpression(4),
-                    E.LiteralExpression(5),
+                    ast.LiteralExpression(4),
+                    ast.LiteralExpression(5),
                 ),
             ),
             parse_expr("1 ? 2 : 3 ? 4 : 5"),
@@ -208,10 +207,10 @@ class ParserTest(unittest.TestCase):
 
     def test_it_parses_statements(self):
         self.assertEqual(
-            S.Program(
+            ast.Program(
                 [
-                    S.ExpressionStatement(E.LiteralExpression(1)),
-                    S.ExpressionStatement(E.LiteralExpression(2)),
+                    ast.ExpressionStatement(ast.LiteralExpression(1)),
+                    ast.ExpressionStatement(ast.LiteralExpression(2)),
                 ]
             ),
             parse("1;\n2;"),
@@ -219,7 +218,8 @@ class ParserTest(unittest.TestCase):
 
     def test_it_parses_print_statement(self):
         self.assertEqual(
-            S.Program([S.PrintStatement(E.LiteralExpression(1))]), parse("print 1;")
+            ast.Program([ast.PrintStatement(ast.LiteralExpression(1))]),
+            parse("print 1;"),
         )
 
 
