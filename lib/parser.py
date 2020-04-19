@@ -88,9 +88,21 @@ class Parser:
         statements = []
 
         while not self.at_end():
-            statements.append(self.statement())
+            statements.append(self.declaration())
 
         return ast.Program(statements)
+
+    def declaration(self):
+        if self.match_any(Type.VAR):
+            return self.variable_declaration()
+
+        return self.statement()
+
+    def variable_declaration(self):
+        identifier = self.consume(Type.IDENTIFIER, "Expected variable name")
+        initializer = self.expression() if self.match_any(Type.EQUAL) else None
+        self.consume(Type.SEMICOLON, "Expected semicolon after variable declaration")
+        return ast.VariableDeclaration(identifier, initializer)
 
     def statement(self):
         if self.match_any(Type.PRINT):
@@ -192,5 +204,7 @@ class Parser:
             expr = self.expression()
             self.consume(Type.RIGHT_PAREN, "Expected ')' after expression")
             return ast.GroupingExpression(expr)
+        if self.match_any(Type.IDENTIFIER):
+            return ast.VariableExpression(self.previous())
 
         raise self.error(self.peek(), "Expected expression")

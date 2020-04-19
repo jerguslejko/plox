@@ -233,6 +233,38 @@ class ParserTest(unittest.TestCase):
             parse("print 1, 2;"),
         )
 
+    def test_it_parses_variable_declaration(self):
+        self.assertEqual(
+            ast.Program(
+                [ast.VariableDeclaration(Token(Type.IDENTIFIER, "a", "a", 1), None)]
+            ),
+            parse("var a;"),
+        )
+
+    def test_it_parses_variable_declaration_with_initializer(self):
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.VariableDeclaration(
+                        Token(Type.IDENTIFIER, "a", "a", 1), ast.LiteralExpression(4)
+                    )
+                ]
+            ),
+            parse("var a = 4;"),
+        )
+
+    def test_it_parser_variable_expression(self):
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.VariableExpression(Token(Type.IDENTIFIER, "a", "a", 1))
+                    )
+                ]
+            ),
+            parse("a;"),
+        )
+
 
 def parse(code):
     (tokens, _) = Scanner(code).scan()

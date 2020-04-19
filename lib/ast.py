@@ -30,6 +30,12 @@ class PrintStatement(Statement):
         self.expressions = expressions
 
 
+class VariableDeclaration(Statement):
+    def __init__(self, identifier, initializer):
+        self.identifier = identifier
+        self.initializer = initializer
+
+
 class Expression(AST):
     pass
 
@@ -61,5 +67,10 @@ class LiteralExpression(Expression):
 
 
 class GroupingExpression(Expression):
+    def __init__(self, expression):
+        self.expression = expression
+
+
+class VariableExpression(Expression):
     def __init__(self, expression):
         self.expression = expression
