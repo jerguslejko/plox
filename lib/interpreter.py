@@ -37,7 +37,7 @@ class Interpreter:
 
         raise ValueError(
             "[interpreter] Unsupported statement type [%s]"
-            % self.ast.__class__.__name__
+            % statement.__class__.__name__
         )
 
     def evaluate(self, expr):
