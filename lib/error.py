@@ -21,6 +21,12 @@ class UndefinedVariableError(RuntimeError):
         self.message = "Variable [%s] is not defined" % token.lexeme
 
 
+class RedeclaringVariableError(RuntimeError):
+    def __init__(self, token):
+        self.token = token
+        self.message = "Variable [%s] is already defined" % token.lexeme
+
+
 class TypeError(RuntimeError):
     @staticmethod
     def invalid_operand(token, value, types):

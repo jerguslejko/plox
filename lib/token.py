@@ -67,3 +67,7 @@ class Type(Enum):
 
     def __repr__(self):
         return "TokenType.%s" % self.name
+
+
+def identifier(name):
+    return Token(Type.IDENTIFIER, name, name, 0)

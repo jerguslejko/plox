@@ -3,7 +3,7 @@ from lib.parser import Parser, ParseError
 from lib.scanner import Scanner
 from lib.interpreter import Interpreter, TypeError
 from lib.ast import Program, VariableExpression
-from lib.token import Token, Type
+from lib.token import identifier
 
 
 class InterpreterTest(unittest.TestCase):
@@ -81,7 +81,7 @@ class InterpreterTest(unittest.TestCase):
         (ast, _) = Parser(tokens).parse()
         interpreter = Interpreter(ast)
         interpreter.interpret()
-        interpreter.evaluate(VariableExpression(Token(Type.IDENTIFIER, "a", "a", 1)))
+        interpreter.evaluate(VariableExpression(identifier("a")))
 
     def assertError(self, message, program):
         threw = False

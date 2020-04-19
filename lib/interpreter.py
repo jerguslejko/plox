@@ -40,7 +40,7 @@ class Interpreter:
                 if statement.initializer != None
                 else None
             )
-            self.env.put(statement.identifier.lexeme, value)
+            self.env.define(statement.identifier, value)
             return None
 
         raise ValueError(

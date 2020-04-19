@@ -1,12 +1,21 @@
-from lib.error import UndefinedVariableError
+from lib.error import UndefinedVariableError, RedeclaringVariableError
 
 
 class Environment:
     def __init__(self):
         self.map = {}
 
-    def put(self, name, value):
-        self.map[name] = value
+    def define(self, var, value):
+        if var.lexeme in self.map:
+            raise RedeclaringVariableError(var)
+
+        self.map[var.lexeme] = value
+
+    def assign(self, var, value):
+        if var.lexeme not in self.map:
+            raise UndefinedVariableError(var)
+
+        self.map[var.lexeme] = value
 
     def get(self, var):
         try:
