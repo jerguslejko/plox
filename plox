@@ -11,6 +11,7 @@ from lib.parser import Parser
 from lib.scanner import Scanner
 from lib.interpreter import Interpreter
 from lib.error import RuntimeError
+from lib.stringify import stringify
 
 def main():
     parser = argparse.ArgumentParser(description="Welcome to Python LOX")
@@ -75,7 +76,11 @@ def run_repl():
     while True:
         try:
             code = input(":: ")
-            run(code)
+
+            try:
+                print(stringify(Interpreter.evaluate_expr(code)))
+            except:
+                run(code)
         # KeyboardInterrupt is <ctrl+c>
         # EOFError is <ctrl+d>
         except (KeyboardInterrupt, EOFError):
