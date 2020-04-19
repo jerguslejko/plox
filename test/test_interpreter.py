@@ -89,6 +89,14 @@ class InterpreterTest(unittest.TestCase):
         value = interpreter.evaluate(Parser.parse_expr("a"))
         self.assertEqual(3, value)
 
+    def test_blocks_create_scopes(self):
+        interpreter = Interpreter.from_code(
+            "var a = 1; var b = 2; { var a = 3; b = 4; }"
+        )
+
+        self.assertEqual(1, interpreter.evaluate(Parser.parse_expr("a")))
+        self.assertEqual(4, interpreter.evaluate(Parser.parse_expr("b")))
+
     def assertError(self, message, program):
         threw = False
 

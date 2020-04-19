@@ -110,7 +110,20 @@ class Parser:
         if self.match_any(Type.PRINT):
             return self.print_statement()
 
+        if self.match_any(Type.LEFT_BRACE):
+            return self.block()
+
         return self.expression_statement()
+
+    def block(self):
+        statements = []
+
+        while not self.at_end() and not self.check(Type.RIGHT_BRACE):
+            statements.append(self.declaration())
+
+        self.consume(Type.RIGHT_BRACE, "Expected closing brace")
+
+        return ast.Block(statements)
 
     def expression_statement(self):
         expr = self.expression()

@@ -20,6 +20,11 @@ class Statement(AST):
     pass
 
 
+class Block(Statement):
+    def __init__(self, statements):
+        self.statements = statements
+
+
 class ExpressionStatement(Statement):
     def __init__(self, expression):
         self.expression = expression

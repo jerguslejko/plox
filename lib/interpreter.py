@@ -2,6 +2,7 @@ from lib.token import Type
 from lib.stringify import stringify
 from lib.ast import (
     Program,
+    Block,
     VariableDeclaration,
     ExpressionStatement,
     PrintStatement,
@@ -44,6 +45,19 @@ class Interpreter:
                 else None
             )
             self.env.define(statement.identifier, value)
+            return None
+
+        if isinstance(statement, Block):
+            previous_env = self.env
+
+            try:
+                self.env = self.env.child()
+
+                for s in statement.statements:
+                    self.execute(s)
+            finally:
+                self.env = previous_env
+
             return None
 
         raise ValueError(

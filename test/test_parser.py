@@ -289,6 +289,14 @@ class ParserTest(unittest.TestCase):
             parse("a = 3;"),
         )
 
+    def test_it_parses_block(self):
+        self.assertEqual(
+            ast.Program(
+                [ast.Block([ast.ExpressionStatement(ast.LiteralExpression(None))])]
+            ),
+            parse("{ nil; }"),
+        )
+
     def test_it_fails_when_assignment_target_is_not_variable(self):
         try:
             parse("var a; var b; a + b = 1")
