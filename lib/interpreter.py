@@ -84,79 +84,79 @@ class Interpreter:
             % self.ast.__class__.__name__
         )
 
-    def evaluate(self, ast):
-        if isinstance(ast, LiteralExpression):
-            return ast.value
+    def evaluate(self, expr):
+        if isinstance(expr, LiteralExpression):
+            return expr.value
 
-        if isinstance(ast, GroupingExpression):
-            return self.evaluate(ast.expression)
+        if isinstance(expr, GroupingExpression):
+            return self.evaluate(expr.expression)
 
-        if isinstance(ast, UnaryExpression):
-            operator, value = ast.operator, self.evaluate(ast.right)
+        if isinstance(expr, UnaryExpression):
+            operator, value = expr.operator, self.evaluate(expr.right)
 
-            if ast.operator.type == Type.MINUS:
+            if expr.operator.type == Type.MINUS:
                 Assert.operand_type(value, [int, float], operator)
                 return -value
-            elif ast.operator.type == Type.BANG:
+            elif expr.operator.type == Type.BANG:
                 Assert.operand_type(value, [bool], operator)
                 return not value
             else:
                 raise ValueError(
                     "[interpreter] Unsupported operator [%s] in unary expression"
-                    % ast.operator.lexeme
+                    % expr.operator.lexeme
                 )
 
-        if isinstance(ast, BinaryExpression):
-            left, right = self.evaluate(ast.left), self.evaluate(ast.right)
+        if isinstance(expr, BinaryExpression):
+            left, right = self.evaluate(expr.left), self.evaluate(expr.right)
 
-            if ast.operator.type == Type.PLUS:
-                Assert.operand_types(left, right, [int, float, str], ast.operator)
+            if expr.operator.type == Type.PLUS:
+                Assert.operand_types(left, right, [int, float, str], expr.operator)
                 return left + right
-            elif ast.operator.type == Type.MINUS:
-                Assert.operand_types(left, right, [int, float, str], ast.operator)
+            elif expr.operator.type == Type.MINUS:
+                Assert.operand_types(left, right, [int, float, str], expr.operator)
                 if isinstance(left, str) and isinstance(right, str):
                     return left.replace(right, "")
 
                 return left - right
-            elif ast.operator.type == Type.STAR:
-                Assert.operand_types(left, right, [int, float], ast.operator)
+            elif expr.operator.type == Type.STAR:
+                Assert.operand_types(left, right, [int, float], expr.operator)
                 return left * right
-            elif ast.operator.type == Type.SLASH:
-                Assert.operand_types(left, right, [int, float], ast.operator)
+            elif expr.operator.type == Type.SLASH:
+                Assert.operand_types(left, right, [int, float], expr.operator)
                 return left / right
-            elif ast.operator.type == Type.GREATER:
-                Assert.operand_types(left, right, [int, float], ast.operator)
+            elif expr.operator.type == Type.GREATER:
+                Assert.operand_types(left, right, [int, float], expr.operator)
                 return left > right
-            elif ast.operator.type == Type.LESS:
-                Assert.operand_types(left, right, [int, float], ast.operator)
+            elif expr.operator.type == Type.LESS:
+                Assert.operand_types(left, right, [int, float], expr.operator)
                 return left < right
-            elif ast.operator.type == Type.GREATER_EQUAL:
-                Assert.operand_types(left, right, [int, float], ast.operator)
+            elif expr.operator.type == Type.GREATER_EQUAL:
+                Assert.operand_types(left, right, [int, float], expr.operator)
                 return left >= right
-            elif ast.operator.type == Type.LESS_EQUAL:
-                Assert.operand_types(left, right, [int, float], ast.operator)
+            elif expr.operator.type == Type.LESS_EQUAL:
+                Assert.operand_types(left, right, [int, float], expr.operator)
                 return left <= right
-            elif ast.operator.type == Type.EQUAL_EQUAL:
+            elif expr.operator.type == Type.EQUAL_EQUAL:
                 return left == right
-            elif ast.operator.type == Type.BANG_EQUAL:
+            elif expr.operator.type == Type.BANG_EQUAL:
                 return left != right
             else:
                 raise ValueError(
                     "[interpreter] Operator [%s] not supported in binary expressions"
-                    % ast.operator.lexeme
+                    % expr.operator.lexeme
                 )
 
-        if isinstance(ast, TernaryExpression):
-            test = self.evaluate(ast.test)
-            Assert.operand_type(test, [bool], ast.operator)
+        if isinstance(expr, TernaryExpression):
+            test = self.evaluate(expr.test)
+            Assert.operand_type(test, [bool], expr.operator)
 
             if test:
-                return self.evaluate(ast.then)
+                return self.evaluate(expr.then)
             else:
-                return self.evaluate(ast.neht)
+                return self.evaluate(expr.neht)
 
         raise ValueError(
-            "[interpreter] Unsupported AST type [%s]" % self.ast.__class__.__name__
+            "[interpreter] Unsupported expression type [%s]" % expr.__class__.__name__
         )
 
 
