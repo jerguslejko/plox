@@ -197,13 +197,19 @@ class ParserTest(unittest.TestCase):
             parse_expr("1 ? 2 : 3 ? 4 : 5"),
         )
 
-    def test_missing_closing_paren(self):
-        (tokens, _) = Scanner("( 1").scan()
-        (ast, errors) = Parser(tokens).parse()
+    def test_synchronization(self):
+        (tokens, _) = Scanner("( 1; 1;").scan()
+        (tree, errors) = Parser(tokens).parse()
 
-        self.assertEqual(None, ast)
         self.assertEqual(
-            [ParseError(Token(Type.EOF, "", None, 1), "Expected ')' after expression")],
+            ast.Program([None, ast.ExpressionStatement(ast.LiteralExpression(1))]), tree
+        )
+        self.assertEqual(
+            [
+                ParseError(
+                    Token(Type.SEMICOLON, ";", None, 1), "Expected ')' after expression"
+                )
+            ],
             errors,
         )
 

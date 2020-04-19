@@ -10,10 +10,7 @@ class Parser:
         self.current = 0
 
     def parse(self):
-        try:
-            return (self.program(), [])
-        except ParseError:
-            return (None, self.errors)
+        return (self.program(), self.errors)
 
     def advance(self):
         self.current += 1
@@ -62,6 +59,25 @@ class Parser:
 
         return self.peek().type == type
 
+    def synchronize(self, e):
+        while not self.at_end():
+            if self.previous().type == Type.SEMICOLON:
+                return
+
+            if self.peek().type in (
+                Type.CLASS,
+                Type.FUN,
+                Type.VAR,
+                Type.FOR,
+                Type.IF,
+                Type.WHILE,
+                Type.PRINT,
+                Type.RETURN,
+            ):
+                return
+
+            self.advance()
+
     """ Rules """
 
     def program(self):
@@ -73,10 +89,14 @@ class Parser:
         return ast.Program(statements)
 
     def declaration(self):
-        if self.match_any(Type.VAR):
-            return self.variable_declaration()
+        try:
+            if self.match_any(Type.VAR):
+                return self.variable_declaration()
 
-        return self.statement()
+            return self.statement()
+        except ParseError as e:
+            self.synchronize(e)
+            return None
 
     def variable_declaration(self):
         identifier = self.consume(Type.IDENTIFIER, "Expected variable name")
