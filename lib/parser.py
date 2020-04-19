@@ -2,27 +2,6 @@ import lib.ast as ast
 from lib.token import Type
 from lib.error import ParseError
 
-"""
-GRAMMAR:
-
-program    → declaration* EOF
-declaration → var_declaration | statement;
-var_declaration → "var" IDENTIFIER ("=" expression) ";"
-statement  → expr_stmt | print_stmt
-print_stmt → "print" expression ";"
-expr_stmt  → expression ";"
-expression → literal | unary | binary | grouping | ternary | primary
-literal    → NUMBER | STRING | "false" | "true" | "nil"
-grouping   → "(" expression ")"
-unary      → ( "-" | "!" ) expression
-binary     → expression operator expression
-ternary    → expression "?" expression ":" expression
-operator   → "==" | "!=" | "<" | "<=" | ">" | ">="
-           | "+"  | "-"  | "*" | "/" | ","
-primary    → NUMBER | STRING | "false" | "true" | "nil"
-           | "(" expression ")"
-"""
-
 
 class Parser:
     def __init__(self, tokens):
