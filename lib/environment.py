@@ -1,4 +1,12 @@
-from lib.error import UndefinedVariableError, RedeclaringVariableError
+from lib.error import (
+    UndefinedVariableError,
+    RedeclaringVariableError,
+    UninitializedVariableError,
+)
+
+
+class EmptyValue:
+    pass
 
 
 class Environment:
@@ -6,7 +14,7 @@ class Environment:
         self.map = {}
         self.parent = parent
 
-    def define(self, var, value):
+    def define(self, var, value=EmptyValue()):
         if var.lexeme in self.map:
             raise RedeclaringVariableError(var)
 
@@ -28,7 +36,12 @@ class Environment:
 
             raise UndefinedVariableError(var)
 
-        return self.map[var.lexeme]
+        value = self.map[var.lexeme]
+
+        if isinstance(value, EmptyValue):
+            raise UninitializedVariableError(var)
+
+        return value
 
     def child(self):
         return Environment(self)

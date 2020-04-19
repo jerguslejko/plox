@@ -39,12 +39,13 @@ class Interpreter:
             return None
 
         if isinstance(statement, VariableDeclaration):
-            value = (
-                self.evaluate(statement.initializer)
-                if statement.initializer != None
-                else None
-            )
-            self.env.define(statement.identifier, value)
+            if statement.initializer != None:
+                self.env.define(
+                    statement.identifier, self.evaluate(statement.initializer)
+                )
+            else:
+                self.env.define(statement.identifier)
+
             return None
 
         if isinstance(statement, Block):

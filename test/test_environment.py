@@ -1,7 +1,11 @@
 import unittest
 from lib.token import Token, Type, identifier
 from lib.environment import Environment
-from lib.error import UndefinedVariableError, RedeclaringVariableError
+from lib.error import (
+    UndefinedVariableError,
+    RedeclaringVariableError,
+    UninitializedVariableError,
+)
 
 
 class EnvironmentTest(unittest.TestCase):
@@ -87,3 +91,14 @@ class EnvironmentTest(unittest.TestCase):
 
         self.assertEqual(10, env.get(identifier("foo")))
         self.assertEqual(10, child.get(identifier("foo")))
+
+    def test_it_throws_when_accessing_uninitialized_variable(self):
+        env = Environment()
+        env.define(identifier("foo"))
+
+        try:
+            env.get(identifier("foo"))
+        except UninitializedVariableError:
+            pass
+        else:
+            self.fail("Expected exception")

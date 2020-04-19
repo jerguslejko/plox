@@ -3,6 +3,7 @@ from lib.error import TypeError
 from lib.parser import Parser
 from lib.scanner import Scanner
 from lib.interpreter import Interpreter
+from lib.error import UninitializedVariableError
 
 
 class InterpreterTest(unittest.TestCase):
@@ -96,6 +97,16 @@ class InterpreterTest(unittest.TestCase):
 
         self.assertEqual(1, interpreter.evaluate(Parser.parse_expr("a")))
         self.assertEqual(4, interpreter.evaluate(Parser.parse_expr("b")))
+
+    def test_accessing_uninitialized_variables_throws(self):
+        interpreter = Interpreter.from_code("var a;")
+
+        try:
+            interpreter.evaluate(Parser.parse_expr("a"))
+        except UninitializedVariableError:
+            pass
+        else:
+            self.fail("Expected exception")
 
     def assertError(self, message, program):
         threw = False
