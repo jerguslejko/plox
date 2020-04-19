@@ -26,8 +26,8 @@ class ExpressionStatement(Statement):
 
 
 class PrintStatement(Statement):
-    def __init__(self, expression):
-        self.expression = expression
+    def __init__(self, expressions):
+        self.expressions = expressions
 
 
 class Expression(AST):

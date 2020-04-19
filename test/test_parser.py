@@ -218,8 +218,19 @@ class ParserTest(unittest.TestCase):
 
     def test_it_parses_print_statement(self):
         self.assertEqual(
-            ast.Program([ast.PrintStatement(ast.LiteralExpression(1))]),
+            ast.Program([ast.PrintStatement([ast.LiteralExpression(1)])]),
             parse("print 1;"),
+        )
+
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.PrintStatement(
+                        [ast.LiteralExpression(1), ast.LiteralExpression(2)]
+                    )
+                ]
+            ),
+            parse("print 1, 2;"),
         )
 
 

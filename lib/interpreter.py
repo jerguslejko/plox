@@ -77,8 +77,7 @@ class Interpreter:
             return None
 
         if isinstance(statement, PrintStatement):
-            value = self.evaluate(statement.expression)
-            print(stringify(value))
+            print(*[stringify(self.evaluate(e)) for e in statement.expressions])
             return None
 
         raise ValueError(

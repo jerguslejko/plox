@@ -64,10 +64,18 @@ def print_statement(statement):
         ] + print_expr(statement.expression)
 
     if isinstance(statement, PrintStatement):
-        return [
-            '%s [label="PrintStatement"]' % id(statement),
-            "%s -> %s" % (id(statement), id(statement.expression)),
-        ] + print_expr(statement.expression)
+        return reduce(
+            lambda xs, expr: xs + print_expr(expr),
+            statement.expressions,
+            [
+                '%s [label="PrintStatement"]' % id(statement),
+                "%s -> { %s }"
+                % (
+                    id(statement),
+                    ", ".join(map(lambda e: str(id(e)), statement.expressions)),
+                ),
+            ],
+        )
 
     raise ValueError("Statement [%s] not supported" % type(statement))
 

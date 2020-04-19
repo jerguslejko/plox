@@ -98,9 +98,13 @@ class Parser:
         return ast.ExpressionStatement(expr)
 
     def print_statement(self):
-        expr = self.expression()
+        exprs = [self.expression()]
+
+        while self.match_any(Type.COMMA):
+            exprs = exprs + [self.expression()]
+
         self.consume(Type.SEMICOLON, "Expected semicolon after statement")
-        return ast.PrintStatement(expr)
+        return ast.PrintStatement(exprs)
 
     def expression(self):
         return self.ternary()
