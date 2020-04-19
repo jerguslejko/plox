@@ -15,10 +15,21 @@ from lib.ast import (
     TernaryExpression,
     VariableExpression,
     AssignmentExpression,
+    LogicalExpression,
 )
 
 
 def print_expr(expr):
+    if isinstance(expr, LogicalExpression):
+        return (
+            [
+                '%s [label="LogicalExpression(%s)"]' % (id(expr), expr.token.lexeme),
+                "%s -> { %s, %s }" % (id(expr), id(expr.left), id(expr.right)),
+            ]
+            + print_expr(expr.left)
+            + print_expr(expr.right)
+        )
+
     if isinstance(expr, BinaryExpression):
         return (
             [
