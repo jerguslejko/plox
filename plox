@@ -30,7 +30,12 @@ def main():
     else:
         # stdin is piped
         if stat.S_ISFIFO(os.fstat(0).st_mode):
-            run("".join(sys.stdin.readlines()))
+            code = "".join(sys.stdin.readlines())
+
+            if args.ast:
+                print_ast(code)
+            else:
+                run(code)
         else:
             run_repl()
 
