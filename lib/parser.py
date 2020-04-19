@@ -1,9 +1,14 @@
 from lib.token import Type
 from lib import expression as E
+from lib import statement as S
 
 """
 GRAMMAR:
 
+program    → statement;
+statement  → expr_stmt | print_stmt;
+print_stmt → "print" expression ";"
+expr_stmt  → expression ";"
 expression → literal | unary | binary | grouping | ternary;
 literal    → NUMBER | STRING | "false" | "true" | "nil" ;
 grouping   → "(" expression ")" ;
@@ -15,6 +20,10 @@ operator   → "==" | "!=" | "<" | "<=" | ">" | ">="
 
 -------------------------------------------------------------
 
+program        → statement;
+statement      → expr_stmt | print_stmt;
+print_stmt     → "print" expression ";"
+expr_stmt      → expression ";"
 expression     → ternary ;
 ternary        → comma "?" comma ":" ternary | comma
 comma          → equality ( ( "," ) equality )* ;
@@ -37,12 +46,12 @@ class Parser:
 
     def parse(self):
         try:
-            expr = self.expression()
+            statements = []
 
-            if not self.at_end():
-                raise ValueError("Unconsumed tokens: %s" % self.tokens[self.current :])
+            while not self.at_end():
+                statements.append(self.program())
 
-            return (expr, [])
+            return (S.Program(statements), [])
         except ParseError:
             return (None, self.errors)
 
@@ -93,6 +102,22 @@ class Parser:
         return self.peek().type == type
 
     """ Rules """
+
+    def program(self):
+        if self.match_any(Type.PRINT):
+            return self.print_statement()
+
+        return self.statement()
+
+    def statement(self):
+        expr = self.expression()
+        self.consume(Type.SEMICOLON, "Expected semicolon after statement")
+        return S.ExpressionStatement(expr)
+
+    def print_statement(self):
+        expr = self.expression()
+        self.consume(Type.SEMICOLON, "Expected semicolon after statement")
+        return S.PrintStatement(expr)
 
     def expression(self):
         return self.ternary()

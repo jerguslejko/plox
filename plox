@@ -53,8 +53,6 @@ def run(code):
         print("runtime error on line %d: %s" % (e.token.line, e.message))
         return False
 
-    print(result)
-
 def print_ast(code):
     (tokens, _) = Scanner(code).scan()
     (ast, _) = Parser(tokens).parse()

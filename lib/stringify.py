@@ -1,3 +1,25 @@
+def stringify(value):
+    if type(value) is int:
+        return str(value)
+
+    if type(value) is float:
+        return str(value)
+
+    if type(value) is str:
+        return value
+
+    if value is None:
+        return "nil"
+
+    if value is True:
+        return "true"
+
+    if value is False:
+        return "false"
+
+    raise ValueError("[stringify] cannot stringify value [%s]" % value)
+
+
 def stringify_type(type):
     if type == None.__class__:
         return "nil"
@@ -11,7 +33,7 @@ def stringify_type(type):
     if type is str:
         return "string"
 
-    raise ValueError("[stringify] cannot stringify [%s]" % type)
+    raise ValueError("[stringify] cannot stringify type [%s]" % type)
 
 
 def stringify_types(types):

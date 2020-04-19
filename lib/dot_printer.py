@@ -1,6 +1,8 @@
 import os
 import tempfile
+from functools import reduce
 from lib.token import Token, Type
+from lib.statement import ExpressionStatement, PrintStatement
 from lib.expression import (
     BinaryExpression,
     UnaryExpression,
@@ -53,8 +55,36 @@ def print_expr(expr):
     raise ValueError("Expression [%s] not supported" % type(expr))
 
 
+def print_statement(statement):
+    if isinstance(statement, ExpressionStatement):
+        return [
+            '%s [label="ExpressionStatement"]' % id(statement),
+            "%s -> %s" % (id(statement), id(statement.expression)),
+        ] + print_expr(statement.expression)
+
+    if isinstance(statement, PrintStatement):
+        return [
+            '%s [label="PrintStatement"]' % id(statement),
+            "%s -> %s" % (id(statement), id(statement.expression)),
+        ] + print_expr(statement.expression)
+
+    raise ValueError("Statement [%s] not supported" % type(statement))
+
+
+def print_program(ast):
+    return reduce(
+        lambda xs, statement: xs + print_statement(statement),
+        ast.statements,
+        [
+            '%s [label="Program"]' % id(ast),
+            "%s -> { %s }"
+            % (id(ast), ", ".join(map(lambda s: str(id(s)), ast.statements))),
+        ],
+    )
+
+
 def print_ast(ast):
-    return "digraph { %s }" % "; ".join(print_expr(ast))
+    return "digraph { %s }" % "; ".join(print_program(ast))
 
 
 def show_ast(ast):

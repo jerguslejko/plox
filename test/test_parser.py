@@ -3,38 +3,41 @@ from lib.parser import Parser, ParseError
 from lib.scanner import Scanner
 from lib.token import Token, Type
 import lib.expression as E
+import lib.statement as S
 
 
 class ParserTest(unittest.TestCase):
     def test_it_parses_literals(self):
         self.assertEqual(
-            E.LiteralExpression(1), parse("1"),
+            E.LiteralExpression(1), parse_expr("1"),
         )
 
         self.assertEqual(
-            E.LiteralExpression(1.2), parse("1.2"),
+            E.LiteralExpression(1.2), parse_expr("1.2"),
         )
 
         self.assertEqual(
-            E.LiteralExpression("hello"), parse('"hello"'),
+            E.LiteralExpression("hello"), parse_expr('"hello"'),
         )
         self.assertEqual(
-            E.LiteralExpression("hello"), parse("'hello'"),
+            E.LiteralExpression("hello"), parse_expr("'hello'"),
         )
 
         self.assertEqual(
-            E.LiteralExpression(True), parse("true"),
+            E.LiteralExpression(True), parse_expr("true"),
         )
 
         self.assertEqual(
-            E.LiteralExpression(False), parse("false"),
+            E.LiteralExpression(False), parse_expr("false"),
         )
 
         self.assertEqual(
-            E.LiteralExpression(None), parse("nil"),
+            E.LiteralExpression(None), parse_expr("nil"),
         )
 
-        self.assertEqual(E.GroupingExpression(E.LiteralExpression(1)), parse("(1)"))
+        self.assertEqual(
+            E.GroupingExpression(E.LiteralExpression(1)), parse_expr("(1)")
+        )
 
     def test_it_parses_equality(self):
         self.assertEqual(
@@ -43,7 +46,7 @@ class ParserTest(unittest.TestCase):
                 Token(Type.EQUAL_EQUAL, "==", None, 1),
                 E.LiteralExpression(1),
             ),
-            parse("1 == 1"),
+            parse_expr("1 == 1"),
         )
 
     def test_it_parses_comparison(self):
@@ -53,7 +56,7 @@ class ParserTest(unittest.TestCase):
                 Token(Type.LESS, "<", None, 1),
                 E.LiteralExpression(1),
             ),
-            parse("1 < 1"),
+            parse_expr("1 < 1"),
         )
 
         self.assertEqual(
@@ -62,7 +65,7 @@ class ParserTest(unittest.TestCase):
                 Token(Type.LESS_EQUAL, "<=", None, 1),
                 E.LiteralExpression(1),
             ),
-            parse("1 <= 1"),
+            parse_expr("1 <= 1"),
         )
 
         self.assertEqual(
@@ -71,7 +74,7 @@ class ParserTest(unittest.TestCase):
                 Token(Type.GREATER, ">", None, 1),
                 E.LiteralExpression(1),
             ),
-            parse("1 > 1"),
+            parse_expr("1 > 1"),
         )
 
         self.assertEqual(
@@ -80,7 +83,7 @@ class ParserTest(unittest.TestCase):
                 Token(Type.GREATER_EQUAL, ">=", None, 1),
                 E.LiteralExpression(1),
             ),
-            parse("1 >= 1"),
+            parse_expr("1 >= 1"),
         )
 
     def test_it_parses_addition(self):
@@ -90,7 +93,7 @@ class ParserTest(unittest.TestCase):
                 Token(Type.PLUS, "+", None, 1),
                 E.LiteralExpression(1),
             ),
-            parse("1 + 1"),
+            parse_expr("1 + 1"),
         )
 
         self.assertEqual(
@@ -99,7 +102,7 @@ class ParserTest(unittest.TestCase):
                 Token(Type.MINUS, "-", None, 1),
                 E.LiteralExpression(1),
             ),
-            parse("1 - 1"),
+            parse_expr("1 - 1"),
         )
 
     def test_it_parses_multiplicate(self):
@@ -109,7 +112,7 @@ class ParserTest(unittest.TestCase):
                 Token(Type.STAR, "*", None, 1),
                 E.LiteralExpression(1),
             ),
-            parse("1 * 1"),
+            parse_expr("1 * 1"),
         )
 
         self.assertEqual(
@@ -118,7 +121,7 @@ class ParserTest(unittest.TestCase):
                 Token(Type.SLASH, "/", None, 1),
                 E.LiteralExpression(1),
             ),
-            parse("1 / 1"),
+            parse_expr("1 / 1"),
         )
 
     def test_it_parses_unary(self):
@@ -126,14 +129,14 @@ class ParserTest(unittest.TestCase):
             E.UnaryExpression(
                 Token(Type.BANG, "!", None, 1), E.LiteralExpression(True),
             ),
-            parse("!true"),
+            parse_expr("!true"),
         )
 
         self.assertEqual(
             E.UnaryExpression(
                 Token(Type.MINUS, "-", None, 1), E.LiteralExpression(42),
             ),
-            parse("-42"),
+            parse_expr("-42"),
         )
 
     def test_it_respects_operator_precedence(self):
@@ -165,7 +168,7 @@ class ParserTest(unittest.TestCase):
                     )
                 ),
             ),
-            parse("1 + 2 * 3 / -4 + (5 * !true)"),
+            parse_expr("1 + 2 * 3 / -4 + (5 * !true)"),
         )
 
     def test_it_parses_comma_expressions(self):
@@ -175,7 +178,7 @@ class ParserTest(unittest.TestCase):
                 Token(Type.COMMA, ",", None, 1),
                 E.LiteralExpression(2),
             ),
-            parse("1,2"),
+            parse_expr("1,2"),
         )
 
     def test_it_parses_ternary(self):
@@ -186,7 +189,7 @@ class ParserTest(unittest.TestCase):
                 E.LiteralExpression(2),
                 E.LiteralExpression(3),
             ),
-            parse("1 ? 2 : 3"),
+            parse_expr("1 ? 2 : 3"),
         )
 
         self.assertEqual(
@@ -201,16 +204,7 @@ class ParserTest(unittest.TestCase):
                     E.LiteralExpression(5),
                 ),
             ),
-            parse("1 ? 2 : 3 ? 4 : 5"),
-        )
-
-    def test_it_throws_on_unconsumed_tokens(self):
-        (tokens, _) = Scanner("1 +").scan()
-        (ast, errors) = Parser(tokens).parse()
-
-        self.assertEqual(None, ast)
-        self.assertEqual(
-            [(Token(Type.EOF, "", None, 1), "Expected expression")], errors
+            parse_expr("1 ? 2 : 3 ? 4 : 5"),
         )
 
     def test_missing_closing_paren(self):
@@ -222,8 +216,33 @@ class ParserTest(unittest.TestCase):
             [(Token(Type.EOF, "", None, 1), "Expected ')' after expression")], errors
         )
 
+    def test_it_parses_statements(self):
+        self.assertEqual(
+            S.Program(
+                [
+                    S.ExpressionStatement(E.LiteralExpression(1)),
+                    S.ExpressionStatement(E.LiteralExpression(2)),
+                ]
+            ),
+            parse("1;\n2;"),
+        )
+
+    def test_it_parses_print_statement(self):
+        self.assertEqual(
+            S.Program([S.PrintStatement(E.LiteralExpression(1))]), parse("print 1;")
+        )
+
 
 def parse(code):
     (tokens, _) = Scanner(code).scan()
-    (ast, _) = Parser(tokens).parse()
+    (ast, errors) = Parser(tokens).parse()
+
+    if len(errors) > 0:
+        for e in errors:
+            raise ValueError(e[1])
+
     return ast
+
+
+def parse_expr(code):
+    return parse(f"{code};").statements[0].expression

@@ -1,5 +1,6 @@
 from lib.token import Type
-from lib.stringify import stringify_type, stringify_types
+from lib.stringify import stringify, stringify_type, stringify_types
+from lib.statement import Program, ExpressionStatement, PrintStatement
 from lib.expression import (
     BinaryExpression,
     UnaryExpression,
@@ -61,21 +62,37 @@ class Interpreter:
 
     def interpret(self):
         try:
-            value = self._interpret(self.ast)
+            for statement in self.ast.statements:
+                self.execute(statement)
 
-            return (value, None)
+            return (None, None)
         except RuntimeError as e:
             return (None, e)
 
-    def _interpret(self, ast):
+    def execute(self, statement):
+        if isinstance(statement, ExpressionStatement):
+            self.evaluate(statement.expression)
+            return None
+
+        if isinstance(statement, PrintStatement):
+            value = self.evaluate(statement.expression)
+            print(stringify(value))
+            return None
+
+        raise ValueError(
+            "[interpreter] Unsupported statement type [%s]"
+            % self.ast.__class__.__name__
+        )
+
+    def evaluate(self, ast):
         if isinstance(ast, LiteralExpression):
             return ast.value
 
         if isinstance(ast, GroupingExpression):
-            return self._interpret(ast.expression)
+            return self.evaluate(ast.expression)
 
         if isinstance(ast, UnaryExpression):
-            operator, value = ast.operator, self._interpret(ast.right)
+            operator, value = ast.operator, self.evaluate(ast.right)
 
             if ast.operator.type == Type.MINUS:
                 Assert.operand_type(value, [int, float], operator)
@@ -90,7 +107,7 @@ class Interpreter:
                 )
 
         if isinstance(ast, BinaryExpression):
-            left, right = self._interpret(ast.left), self._interpret(ast.right)
+            left, right = self.evaluate(ast.left), self.evaluate(ast.right)
 
             if ast.operator.type == Type.PLUS:
                 Assert.operand_types(left, right, [int, float, str], ast.operator)
@@ -130,13 +147,13 @@ class Interpreter:
                 )
 
         if isinstance(ast, TernaryExpression):
-            test = self._interpret(ast.test)
+            test = self.evaluate(ast.test)
             Assert.operand_type(test, [bool], ast.operator)
 
             if test:
-                return self._interpret(ast.then)
+                return self.evaluate(ast.then)
             else:
-                return self._interpret(ast.neht)
+                return self.evaluate(ast.neht)
 
         raise ValueError(
             "[interpreter] Unsupported AST type [%s]" % self.ast.__class__.__name__
