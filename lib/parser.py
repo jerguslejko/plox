@@ -101,10 +101,11 @@ class Parser:
         expr = self.comma()
 
         while self.match_any(Type.QUESTION_MARK):
+            operator = self.previous()
             then = self.comma()
             self.consume(Type.COLON, "Expected colon in ternary")
             nhet = self.ternary()
-            expr = E.TernaryExpression(expr, then, nhet)
+            expr = E.TernaryExpression(expr, operator, then, nhet)
 
         return expr
 

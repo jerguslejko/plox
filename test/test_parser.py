@@ -181,7 +181,10 @@ class ParserTest(unittest.TestCase):
     def test_it_parses_ternary(self):
         self.assertEqual(
             E.TernaryExpression(
-                E.LiteralExpression(1), E.LiteralExpression(2), E.LiteralExpression(3),
+                E.LiteralExpression(1),
+                Token(Type.QUESTION_MARK, "?", None, 1),
+                E.LiteralExpression(2),
+                E.LiteralExpression(3),
             ),
             parse("1 ? 2 : 3"),
         )
@@ -189,9 +192,11 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(
             E.TernaryExpression(
                 E.LiteralExpression(1),
+                Token(Type.QUESTION_MARK, "?", None, 1),
                 E.LiteralExpression(2),
                 E.TernaryExpression(
                     E.LiteralExpression(3),
+                    Token(Type.QUESTION_MARK, "?", None, 1),
                     E.LiteralExpression(4),
                     E.LiteralExpression(5),
                 ),

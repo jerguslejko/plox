@@ -12,10 +12,11 @@ class Expression:
 
 
 class TernaryExpression(Expression):
-    def __init__(self, test, then, neht):
+    def __init__(self, test, operator, then, neht):
         self.test = test
         self.then = then
         self.neht = neht
+        self.operator = operator
 
 
 class BinaryExpression(Expression):

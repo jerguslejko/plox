@@ -131,6 +131,7 @@ class Interpreter:
 
         if isinstance(ast, TernaryExpression):
             test = self._interpret(ast.test)
+            Assert.operand_type(test, [bool], ast.operator)
 
             if test:
                 return self._interpret(ast.then)
