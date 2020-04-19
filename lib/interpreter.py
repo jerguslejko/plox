@@ -2,6 +2,7 @@ from lib.token import Type
 from lib.stringify import stringify
 from lib.ast import (
     Program,
+    VariableDeclaration,
     ExpressionStatement,
     PrintStatement,
     BinaryExpression,
@@ -9,13 +10,16 @@ from lib.ast import (
     LiteralExpression,
     GroupingExpression,
     TernaryExpression,
+    VariableExpression,
 )
 from lib.error import RuntimeError, TypeError
+from lib.environment import Environment
 
 
 class Interpreter:
     def __init__(self, ast):
         self.ast = ast
+        self.env = Environment()
 
     def interpret(self):
         try:
@@ -33,6 +37,15 @@ class Interpreter:
 
         if isinstance(statement, PrintStatement):
             print(*[stringify(self.evaluate(e)) for e in statement.expressions])
+            return None
+
+        if isinstance(statement, VariableDeclaration):
+            value = (
+                self.evaluate(statement.initializer)
+                if statement.initializer != None
+                else None
+            )
+            self.env.put(statement.identifier.lexeme, value)
             return None
 
         raise ValueError(
@@ -110,6 +123,9 @@ class Interpreter:
                 return self.evaluate(expr.then)
             else:
                 return self.evaluate(expr.neht)
+
+        if isinstance(expr, VariableExpression):
+            return self.env.get(expr.variable)
 
         raise ValueError(
             "[interpreter] Unsupported expression type [%s]" % expr.__class__.__name__

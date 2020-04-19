@@ -4,12 +4,14 @@ from functools import reduce
 from lib.token import Token, Type
 from lib.ast import (
     ExpressionStatement,
+    VariableDeclaration,
     PrintStatement,
     BinaryExpression,
     UnaryExpression,
     LiteralExpression,
     GroupingExpression,
     TernaryExpression,
+    VariableExpression,
 )
 
 
@@ -53,6 +55,11 @@ def print_expr(expr):
             + print_expr(expr.neht)
         )
 
+    if isinstance(expr, VariableExpression):
+        return [
+            '%s [label="VariableExpression(%s)"]' % (id(expr), expr.variable.lexeme),
+        ]
+
     raise ValueError("Expression [%s] not supported" % type(expr))
 
 
@@ -76,6 +83,15 @@ def print_statement(statement):
                 ),
             ],
         )
+
+    if isinstance(statement, VariableDeclaration):
+        return [
+            '%s [label="VariableDeclaration(%s)"]'
+            % (id(statement), statement.identifier.lexeme),
+            "%s" % id(statement)
+            if statement.initializer is None
+            else "%s -> %s" % (id(statement), id(statement.initializer)),
+        ] + ([] if statement.initializer is None else print_expr(statement.initializer))
 
     raise ValueError("Statement [%s] not supported" % type(statement))
 

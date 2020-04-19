@@ -18,6 +18,7 @@ class ParseError(CompileError):
 class UndefinedVariableError(RuntimeError):
     def __init__(self, token):
         self.token = token
+        self.message = "Variable [%s] is not defined" % token.lexeme
 
 
 class TypeError(RuntimeError):

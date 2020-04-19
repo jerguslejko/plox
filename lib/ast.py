@@ -72,5 +72,5 @@ class GroupingExpression(Expression):
 
 
 class VariableExpression(Expression):
-    def __init__(self, expression):
-        self.expression = expression
+    def __init__(self, variable):
+        self.variable = variable
