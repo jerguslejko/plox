@@ -204,7 +204,7 @@ class Parser:
         return self.assignment()
 
     def assignment(self):
-        left = self.logical_or()
+        left = self.ternary()
 
         if self.match_any(Type.EQUAL):
             token = self.previous()
@@ -217,6 +217,18 @@ class Parser:
 
         return left
 
+    def ternary(self):
+        expr = self.logical_or()
+
+        while self.match_any(Type.QUESTION_MARK):
+            operator = self.previous()
+            then = self.logical_or()
+            self.consume(Type.COLON, "Expected colon in ternary")
+            nhet = self.ternary()
+            expr = ast.TernaryExpression(expr, operator, then, nhet)
+
+        return expr
+
     def logical_or(self):
         expr = self.logical_and()
 
@@ -228,24 +240,12 @@ class Parser:
         return expr
 
     def logical_and(self):
-        expr = self.ternary()
+        expr = self.equality()
 
         while self.match_any(Type.AND):
             token = self.previous()
-            right = self.ternary()
+            right = self.equality()
             expr = ast.LogicalExpression(expr, token, right)
-
-        return expr
-
-    def ternary(self):
-        expr = self.equality()
-
-        while self.match_any(Type.QUESTION_MARK):
-            operator = self.previous()
-            then = self.equality()
-            self.consume(Type.COLON, "Expected colon in ternary")
-            nhet = self.ternary()
-            expr = ast.TernaryExpression(expr, operator, then, nhet)
 
         return expr
 
