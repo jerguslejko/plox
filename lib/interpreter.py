@@ -18,12 +18,16 @@ from lib.error import RuntimeError, TypeError
 from lib.environment import Environment
 from lib.scanner import Scanner
 from lib.parser import Parser
+from lib.io import RealPrinter, FakePrinter
 
 
 class Interpreter:
+    printer = RealPrinter
+
     def __init__(self, ast):
         self.ast = ast
         self.env = Environment()
+        self.printer = Interpreter.printer()
 
     def interpret(self):
         for statement in self.ast.statements:
@@ -35,7 +39,9 @@ class Interpreter:
             return None
 
         if isinstance(statement, PrintStatement):
-            print(*[stringify(self.evaluate(e)) for e in statement.expressions])
+            self.printer.print(
+                *[stringify(self.evaluate(e)) for e in statement.expressions]
+            )
             return None
 
         if isinstance(statement, VariableDeclaration):

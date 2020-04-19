@@ -4,9 +4,13 @@ from lib.parser import Parser
 from lib.scanner import Scanner
 from lib.interpreter import Interpreter
 from lib.error import UninitializedVariableError
+from lib.io import FakePrinter
 
 
 class InterpreterTest(unittest.TestCase):
+    def setUp(self):
+        Interpreter.printer = FakePrinter
+
     def test_it_interprets_literals(self):
         self.assertEqual(1, evaluate_expr("1"))
         self.assertEqual(2.4, evaluate_expr("2.4"))
