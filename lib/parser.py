@@ -155,7 +155,7 @@ class Parser:
         return self.assignment()
 
     def assignment(self):
-        left = self.ternary()
+        left = self.logical_or()
 
         if self.match_any(Type.EQUAL):
             token = self.previous()
@@ -167,6 +167,26 @@ class Parser:
             raise self.error(token, "Invalid assignment target")
 
         return left
+
+    def logical_or(self):
+        expr = self.logical_and()
+
+        while self.match_any(Type.OR):
+            token = self.previous()
+            right = self.logical_and()
+            expr = ast.LogicalExpression(expr, token, right)
+
+        return expr
+
+    def logical_and(self):
+        expr = self.ternary()
+
+        while self.match_any(Type.AND):
+            token = self.previous()
+            right = self.ternary()
+            expr = ast.LogicalExpression(expr, token, right)
+
+        return expr
 
     def ternary(self):
         expr = self.equality()

@@ -14,6 +14,7 @@ from lib.ast import (
     TernaryExpression,
     VariableExpression,
     AssignmentExpression,
+    LogicalExpression,
 )
 from lib.error import RuntimeError, TypeError
 from lib.environment import Environment
@@ -163,6 +164,30 @@ class Interpreter:
             value = self.evaluate(expr.right)
             self.env.assign(expr.left, value)
             return value
+
+        if isinstance(expr, LogicalExpression):
+            if expr.token.type == Type.OR:
+                left = self.evaluate(expr.left)
+                Assert.operand_type(left, [bool], expr.token)
+
+                if left:
+                    return True
+
+                right = self.evaluate(expr.right)
+                Assert.operand_type(right, [bool], expr.token)
+                return right
+
+            if expr.token.type == Type.AND:
+                left = self.evaluate(expr.left)
+                Assert.operand_type(left, [bool], expr.token)
+                if not left:
+                    return False
+
+                right = self.evaluate(expr.right)
+                Assert.operand_type(right, [bool], expr.token)
+                return right
+
+            raise ValueError("unsupported logical operator (%s)" % expr.token.lexeme)
 
         raise ValueError(
             "[interpreter] Unsupported expression type [%s]" % expr.__class__.__name__

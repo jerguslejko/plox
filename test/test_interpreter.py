@@ -132,6 +132,18 @@ class InterpreterTest(unittest.TestCase):
         interpreter = Interpreter.from_code("if (false) { print 1; }")
         self.assertEqual([], interpreter.printer.get())
 
+    def test_logical_operators(self):
+        interpreter = Interpreter([])
+
+        self.assertEqual(True, interpreter.evaluate(Parser.parse_expr("true and true")))
+        self.assertEqual(
+            False, interpreter.evaluate(Parser.parse_expr("true and false"))
+        )
+        self.assertEqual(True, interpreter.evaluate(Parser.parse_expr("true or false")))
+        self.assertEqual(
+            False, interpreter.evaluate(Parser.parse_expr("false or false"))
+        )
+
 
 def evaluate_expr(code):
     interpreter = Interpreter.from_code(f"{code};")

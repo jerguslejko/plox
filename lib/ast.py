@@ -93,3 +93,10 @@ class AssignmentExpression(Expression):
         self.left = left
         self.token = token
         self.right = right
+
+
+class LogicalExpression(Expression):
+    def __init__(self, left, token, right):
+        self.left = left
+        self.token = token
+        self.right = right

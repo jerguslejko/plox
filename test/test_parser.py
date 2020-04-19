@@ -349,6 +349,26 @@ class ParserTest(unittest.TestCase):
             parse("if (true) if (false) 3; else 2;"),
         )
 
+    def test_logical_operators(self):
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.LogicalExpression(
+                            ast.LogicalExpression(
+                                ast.LiteralExpression(1),
+                                Token(Type.AND, "and", None, 1),
+                                ast.LiteralExpression(2),
+                            ),
+                            Token(Type.OR, "or", None, 1),
+                            ast.LiteralExpression(3),
+                        )
+                    )
+                ]
+            ),
+            parse("1 and 2 or 3;"),
+        )
+
 
 def parse(code):
     return Parser.parse_code(code)
