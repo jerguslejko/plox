@@ -7,6 +7,7 @@ from lib.ast import (
     ExpressionStatement,
     PrintStatement,
     IfStatement,
+    WhileStatement,
     BinaryExpression,
     UnaryExpression,
     LiteralExpression,
@@ -78,6 +79,15 @@ class Interpreter:
             else:
                 if statement.neht is not None:
                     self.execute(statement.neht)
+
+            return None
+
+        if isinstance(statement, WhileStatement):
+            test = self.evaluate(statement.test)
+            Assert.operand_type(test, [bool], statement.token)
+            while test:
+                self.execute(statement.body)
+                test = self.evaluate(statement.test)
 
             return None
 

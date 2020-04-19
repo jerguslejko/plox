@@ -144,6 +144,13 @@ class InterpreterTest(unittest.TestCase):
             False, interpreter.evaluate(Parser.parse_expr("false or false"))
         )
 
+    def test_while_statements(self):
+        interpreter = Interpreter.from_code(
+            "var a = 1; while (a < 3) { print(a); a = a + 1; }"
+        )
+
+        self.assertEqual(["1", "2"], interpreter.printer.get())
+
 
 def evaluate_expr(code):
     interpreter = Interpreter.from_code(f"{code};")

@@ -369,6 +369,20 @@ class ParserTest(unittest.TestCase):
             parse("1 and 2 or 3;"),
         )
 
+    def test_while_expression(self):
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.WhileStatement(
+                        Token(Type.WHILE, "while", None, 1),
+                        ast.LiteralExpression(True),
+                        ast.Block([]),
+                    )
+                ]
+            ),
+            parse("while (true) {}"),
+        )
+
 
 def parse(code):
     return Parser.parse_code(code)

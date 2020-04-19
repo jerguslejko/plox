@@ -108,6 +108,9 @@ class Parser:
         return ast.VariableDeclaration(identifier, initializer)
 
     def statement(self):
+        if self.match_any(Type.WHILE):
+            return self.while_statement()
+
         if self.match_any(Type.IF):
             return self.if_statement()
 
@@ -150,6 +153,14 @@ class Parser:
         then = self.statement()
         neht = self.statement() if self.match_any(Type.ELSE) else None
         return ast.IfStatement(test, then, neht)
+
+    def while_statement(self):
+        token = self.previous()
+        self.consume(Type.LEFT_PAREN, "Expected left parenthesis on IF statement")
+        test = self.expression()
+        self.consume(Type.RIGHT_PAREN, "Expected right parenthesis on IF statement")
+        body = self.statement()
+        return ast.WhileStatement(token, test, body)
 
     def expression(self):
         return self.assignment()

@@ -48,6 +48,13 @@ class IfStatement(Statement):
         self.neht = neht
 
 
+class WhileStatement(Statement):
+    def __init__(self, token, test, body):
+        self.token = token
+        self.test = test
+        self.body = body
+
+
 class Expression(AST):
     pass
 
