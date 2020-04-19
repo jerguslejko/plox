@@ -2,8 +2,8 @@ import unittest
 from lib.parser import Parser, ParseError
 from lib.scanner import Scanner
 from lib.interpreter import Interpreter, TypeError
-from lib.ast import Program, VariableExpression
-from lib.token import identifier
+from lib.ast import Program, VariableExpression, AssignmentExpression, LiteralExpression
+from lib.token import Token, Type, identifier
 
 
 class InterpreterTest(unittest.TestCase):
@@ -83,6 +83,21 @@ class InterpreterTest(unittest.TestCase):
         interpreter.interpret()
         value = interpreter.evaluate(VariableExpression(identifier("a")))
         self.assertEqual(4, value)
+
+    def test_it_interprets_variable_assignments(self):
+        (tokens, _) = Scanner("var a;").scan()
+        (ast, _) = Parser(tokens).parse()
+        interpreter = Interpreter(ast)
+        interpreter.interpret()
+        value = interpreter.evaluate(
+            AssignmentExpression(
+                identifier("a"), Token(Type.EQUAL, "=", None, 1), LiteralExpression(3)
+            )
+        )
+        self.assertEqual(3, value)
+
+        value = interpreter.evaluate(VariableExpression(identifier("a")))
+        self.assertEqual(3, value)
 
     def assertError(self, message, program):
         threw = False

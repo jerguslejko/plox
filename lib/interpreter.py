@@ -11,6 +11,7 @@ from lib.ast import (
     GroupingExpression,
     TernaryExpression,
     VariableExpression,
+    AssignmentExpression,
 )
 from lib.error import RuntimeError, TypeError
 from lib.environment import Environment
@@ -121,6 +122,11 @@ class Interpreter:
 
         if isinstance(expr, VariableExpression):
             return self.env.get(expr.variable)
+
+        if isinstance(expr, AssignmentExpression):
+            value = self.evaluate(expr.right)
+            self.env.assign(expr.left, value)
+            return value
 
         raise ValueError(
             "[interpreter] Unsupported expression type [%s]" % expr.__class__.__name__

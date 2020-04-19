@@ -105,7 +105,21 @@ class Parser:
         return ast.PrintStatement(exprs)
 
     def expression(self):
-        return self.ternary()
+        return self.assignment()
+
+    def assignment(self):
+        left = self.ternary()
+
+        if self.match_any(Type.EQUAL):
+            token = self.previous()
+            right = self.assignment()
+
+            if isinstance(left, ast.VariableExpression):
+                return ast.AssignmentExpression(left.variable, token, right)
+
+            raise self.error(token, "Invalid assignment target")
+
+        return left
 
     def ternary(self):
         expr = self.equality()

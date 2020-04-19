@@ -267,6 +267,30 @@ class ParserTest(unittest.TestCase):
             parse("a;"),
         )
 
+    def test_it_parses_variable_assignment(self):
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.AssignmentExpression(
+                            Token(Type.IDENTIFIER, "a", "a", 1),
+                            Token(Type.EQUAL, "=", None, 1),
+                            ast.LiteralExpression(3),
+                        )
+                    )
+                ]
+            ),
+            parse("a = 3;"),
+        )
+
+    def test_it_fails_when_assignment_target_is_not_variable(self):
+        try:
+            parse("var a; var b; a + b = 1")
+        except ParseError as e:
+            pass
+        else:
+            self.fail("Expected exception")
+
 
 def parse(code):
     (tokens, _) = Scanner(code).scan()

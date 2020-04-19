@@ -74,3 +74,10 @@ class GroupingExpression(Expression):
 class VariableExpression(Expression):
     def __init__(self, variable):
         self.variable = variable
+
+
+class AssignmentExpression(Expression):
+    def __init__(self, left, token, right):
+        self.left = left
+        self.token = token
+        self.right = right
