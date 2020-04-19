@@ -1,5 +1,6 @@
 import lib.ast as ast
 from lib.token import Type
+from lib.error import ParseError
 
 """
 GRAMMAR:
@@ -188,7 +189,3 @@ class Parser:
             return ast.GroupingExpression(expr)
 
         raise self.error(self.peek(), "Expected expression")
-
-
-class ParseError(RuntimeError):
-    pass
