@@ -15,6 +15,11 @@ class ParseError(CompileError):
     pass
 
 
+class UndefinedVariableError(RuntimeError):
+    def __init__(self, token):
+        self.token = token
+
+
 class TypeError(RuntimeError):
     @staticmethod
     def invalid_operand(token, value, types):
