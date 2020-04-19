@@ -105,6 +105,9 @@ class Parser:
         if self.match_any(Type.WHILE):
             return self.while_statement()
 
+        if self.match_any(Type.FOR):
+            return self.for_statement()
+
         if self.match_any(Type.IF):
             return self.if_statement()
 
@@ -155,6 +158,47 @@ class Parser:
         self.consume(Type.RIGHT_PAREN, "Expected right parenthesis on IF statement")
         body = self.statement()
         return ast.WhileStatement(token, test, body)
+
+    def for_statement(self):
+        token = self.previous()
+        self.consume(Type.LEFT_PAREN, "Expected left parenthesis on FOR statement")
+
+        initializer = None
+        if self.match_any(Type.SEMICOLON):
+            initializer = None
+        elif self.match_any(Type.VAR):
+            initializer = self.variable_declaration()
+        else:
+            initializer = self.expression_statement()
+
+        condition = None
+        if not self.matches(Type.SEMICOLON):
+            condition = self.expression()
+        self.consume(Type.SEMICOLON, "Expected semicolon after loop condition")
+
+        increment = None
+        if not self.matches(Type.RIGHT_PAREN):
+            increment = ast.ExpressionStatement(self.expression())
+        self.consume(Type.RIGHT_PAREN, "Expected right parenthesis on FOR statement")
+
+        body = self.statement()
+
+        statements = []
+        while_body = []
+
+        if len(body.statements) > 0:
+            while_body.append(body)
+
+        if initializer:
+            statements.append(initializer)
+
+        if increment:
+            while_body.append(increment)
+
+        test = condition if condition is not None else ast.LiteralExpression(True)
+        statements.append(ast.WhileStatement(token, test, ast.Block(while_body)))
+
+        return ast.Block(statements)
 
     def expression(self):
         return self.assignment()

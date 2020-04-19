@@ -151,6 +151,12 @@ class InterpreterTest(unittest.TestCase):
 
         self.assertEqual(["1", "2"], interpreter.printer.get())
 
+    def test_for_loops(self):
+        interpreter = Interpreter.from_code(
+            "for (var a = 0; a < 3; a = a + 1) { print a; }"
+        )
+        self.assertEqual(["0", "1", "2"], interpreter.printer.get())
+
 
 def evaluate_expr(code):
     interpreter = Interpreter.from_code(f"{code};")

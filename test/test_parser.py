@@ -383,6 +383,171 @@ class ParserTest(unittest.TestCase):
             parse("while (true) {}"),
         )
 
+    def test_for_expression(self):
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.Block(
+                        [
+                            ast.WhileStatement(
+                                Token(Type.FOR, "for", None, 1),
+                                ast.LiteralExpression(True),
+                                ast.Block([]),
+                            )
+                        ]
+                    )
+                ]
+            ),
+            parse("for (;;) {}"),
+        )
+
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.Block(
+                        [
+                            ast.VariableDeclaration(
+                                Token(Type.IDENTIFIER, "a", "a", 1),
+                                ast.LiteralExpression(0),
+                            ),
+                            ast.WhileStatement(
+                                Token(Type.FOR, "for", None, 1),
+                                ast.LiteralExpression(True),
+                                ast.Block([]),
+                            ),
+                        ]
+                    )
+                ]
+            ),
+            parse("for (var a = 0;;) {}"),
+        )
+
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.Block(
+                        [
+                            ast.VariableDeclaration(
+                                Token(Type.IDENTIFIER, "a", "a", 1),
+                                ast.LiteralExpression(0),
+                            ),
+                            ast.WhileStatement(
+                                Token(Type.FOR, "for", None, 1),
+                                ast.BinaryExpression(
+                                    ast.VariableExpression(
+                                        Token(Type.IDENTIFIER, "a", "a", 1)
+                                    ),
+                                    Token(Type.LESS, "<", None, 1),
+                                    ast.LiteralExpression(10),
+                                ),
+                                ast.Block([]),
+                            ),
+                        ]
+                    )
+                ]
+            ),
+            parse("for (var a = 0; a < 10;) {}"),
+        )
+
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.Block(
+                        [
+                            ast.VariableDeclaration(
+                                Token(Type.IDENTIFIER, "a", "a", 1),
+                                ast.LiteralExpression(0),
+                            ),
+                            ast.WhileStatement(
+                                Token(Type.FOR, "for", None, 1),
+                                ast.BinaryExpression(
+                                    ast.VariableExpression(
+                                        Token(Type.IDENTIFIER, "a", "a", 1)
+                                    ),
+                                    Token(Type.LESS, "<", None, 1),
+                                    ast.LiteralExpression(10),
+                                ),
+                                ast.Block(
+                                    [
+                                        ast.ExpressionStatement(
+                                            ast.AssignmentExpression(
+                                                Token(Type.IDENTIFIER, "a", "a", 1),
+                                                Token(Type.EQUAL, "=", None, 1),
+                                                ast.BinaryExpression(
+                                                    ast.VariableExpression(
+                                                        Token(
+                                                            Type.IDENTIFIER, "a", "a", 1
+                                                        )
+                                                    ),
+                                                    Token(Type.PLUS, "+", None, 1),
+                                                    ast.LiteralExpression(1),
+                                                ),
+                                            )
+                                        ),
+                                    ]
+                                ),
+                            ),
+                        ]
+                    )
+                ]
+            ),
+            parse("for (var a = 0; a < 10; a = a + 1) {}"),
+        )
+
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.Block(
+                        [
+                            ast.ExpressionStatement(
+                                ast.AssignmentExpression(
+                                    Token(Type.IDENTIFIER, "a", "a", 1),
+                                    Token(Type.EQUAL, "=", None, 1),
+                                    ast.LiteralExpression(0),
+                                )
+                            ),
+                            ast.WhileStatement(
+                                Token(Type.FOR, "for", None, 1),
+                                ast.LiteralExpression(True),
+                                ast.Block([]),
+                            ),
+                        ]
+                    )
+                ]
+            ),
+            parse("for (a = 0;;) {}"),
+        )
+
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.Block(
+                        [
+                            ast.WhileStatement(
+                                Token(Type.FOR, "for", None, 1),
+                                ast.LiteralExpression(True),
+                                ast.Block(
+                                    [
+                                        ast.Block(
+                                            [
+                                                ast.ExpressionStatement(
+                                                    ast.LiteralExpression(2)
+                                                )
+                                            ]
+                                        ),
+                                        ast.ExpressionStatement(
+                                            ast.LiteralExpression(1)
+                                        ),
+                                    ]
+                                ),
+                            ),
+                        ]
+                    )
+                ]
+            ),
+            parse("for (;;1) { 2; }"),
+        )
+
 
 def parse(code):
     return Parser.parse_code(code)

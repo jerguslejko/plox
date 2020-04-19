@@ -3,15 +3,18 @@ import tempfile
 from functools import reduce
 from lib.token import Token, Type
 from lib.ast import (
+    Block,
     ExpressionStatement,
     VariableDeclaration,
     PrintStatement,
+    WhileStatement,
     BinaryExpression,
     UnaryExpression,
     LiteralExpression,
     GroupingExpression,
     TernaryExpression,
     VariableExpression,
+    AssignmentExpression,
 )
 
 
@@ -60,6 +63,12 @@ def print_expr(expr):
             '%s [label="VariableExpression(%s)"]' % (id(expr), expr.variable.lexeme),
         ]
 
+    if isinstance(expr, AssignmentExpression):
+        return [
+            '%s [label="AssignmentExpression(%s)"]' % (id(expr), expr.left.lexeme),
+            "%s -> %s" % (id(expr), id(expr.right)),
+        ] + print_expr(expr.right)
+
     raise ValueError("Expression [%s] not supported" % type(expr))
 
 
@@ -92,6 +101,31 @@ def print_statement(statement):
             if statement.initializer is None
             else "%s -> %s" % (id(statement), id(statement.initializer)),
         ] + ([] if statement.initializer is None else print_expr(statement.initializer))
+
+    if isinstance(statement, Block):
+        return reduce(
+            lambda xs, statement: xs + print_statement(statement),
+            statement.statements,
+            [
+                '%s [label="Block"]' % id(statement),
+                "%s -> { %s }"
+                % (
+                    id(statement),
+                    ", ".join(map(lambda s: str(id(s)), statement.statements)),
+                ),
+            ],
+        )
+
+    if isinstance(statement, WhileStatement):
+        return (
+            [
+                '%s [label="WhileStatement"]' % id(statement),
+                "%s -> { %s, %s }"
+                % (id(statement), id(statement.test), id(statement.body)),
+            ]
+            + print_expr(statement.test)
+            + print_statement(statement.body)
+        )
 
     raise ValueError("Statement [%s] not supported" % type(statement))
 
