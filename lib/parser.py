@@ -5,36 +5,20 @@ from lib import statement as S
 """
 GRAMMAR:
 
-program    → statement;
-statement  → expr_stmt | print_stmt;
+program    → statement* EOF
+statement  → expr_stmt | print_stmt
 print_stmt → "print" expression ";"
 expr_stmt  → expression ";"
-expression → literal | unary | binary | grouping | ternary;
-literal    → NUMBER | STRING | "false" | "true" | "nil" ;
-grouping   → "(" expression ")" ;
-unary      → ( "-" | "!" ) expression ;
-binary     → expression operator expression ;
-ternary    → expression "?" expression ":" expression ;
+expression → literal | unary | binary | grouping | ternary | primary
+literal    → NUMBER | STRING | "false" | "true" | "nil"
+grouping   → "(" expression ")"
+unary      → ( "-" | "!" ) expression
+binary     → expression operator expression
+ternary    → expression "?" expression ":" expression
 operator   → "==" | "!=" | "<" | "<=" | ">" | ">="
-           | "+"  | "-"  | "*" | "/" | "," ;
-
--------------------------------------------------------------
-
-program        → statement;
-statement      → expr_stmt | print_stmt;
-print_stmt     → "print" expression ";"
-expr_stmt      → expression ";"
-expression     → ternary ;
-ternary        → comma "?" comma ":" ternary | comma
-comma          → equality ( ( "," ) equality )* ;
-equality       → comparison ( ( "!=" | "==" ) comparison )* ;
-comparison     → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
-addition       → multiplication ( ( "-" | "+" ) multiplication )* ;
-multiplication → unary ( ( "/" | "*" ) unary )* ;
-unary          → ( "!" | "-" ) unary
-               | primary ;
-primary        → NUMBER | STRING | "false" | "true" | "nil"
-               | "(" expression ")" ;
+           | "+"  | "-"  | "*" | "/" | ","
+primary    → NUMBER | STRING | "false" | "true" | "nil"
+           | "(" expression ")"
 """
 
 
