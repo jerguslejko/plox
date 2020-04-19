@@ -9,6 +9,7 @@ from os import path
 from lib.parser import Parser
 from lib.scanner import Scanner
 from lib.interpreter import Interpreter
+from lib.error import RuntimeError
 
 def main():
     parser = argparse.ArgumentParser(description="Welcome to Python LOX")
@@ -45,18 +46,18 @@ def run(code):
     for (line, message) in scan_errors:
         print("scan error on line %d: %s" % (line, message))
     if len(scan_errors) > 0:
-        return False
+        return
 
     (ast, parse_errors) = Parser(tokens).parse()
     for (token, message) in parse_errors:
         print("parse error on line %d: %s" % (token.line, message))
     if len(parse_errors) > 0:
-        return False
+        return
 
-    (result, e) = Interpreter(ast).interpret()
-    if e != None:
+    try:
+        Interpreter(ast).interpret()
+    except RuntimeError as e:
         print("runtime error on line %d: %s" % (e.token.line, e.message))
-        return False
 
 def print_ast(code):
     (tokens, scan_errors) = Scanner(code).scan()

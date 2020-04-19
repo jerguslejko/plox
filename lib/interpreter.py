@@ -22,13 +22,8 @@ class Interpreter:
         self.env = Environment()
 
     def interpret(self):
-        try:
-            for statement in self.ast.statements:
-                self.execute(statement)
-
-            return (None, None)
-        except RuntimeError as e:
-            return (None, e)
+        for statement in self.ast.statements:
+            self.execute(statement)
 
     def execute(self, statement):
         if isinstance(statement, ExpressionStatement):
