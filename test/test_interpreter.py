@@ -1,102 +1,92 @@
 import unittest
-from lib.parser import Parser, ParseError
+from lib.error import TypeError
+from lib.parser import Parser
 from lib.scanner import Scanner
-from lib.interpreter import Interpreter, TypeError
-from lib.ast import Program, VariableExpression, AssignmentExpression, LiteralExpression
-from lib.token import Token, Type, identifier
+from lib.interpreter import Interpreter
 
 
 class InterpreterTest(unittest.TestCase):
     def test_it_interprets_literals(self):
-        self.assertEqual(1, run_expr("1"))
-        self.assertEqual(2.4, run_expr("2.4"))
-        self.assertEqual("hi", run_expr('"hi"'))
-        self.assertEqual(True, run_expr("true"))
-        self.assertEqual(False, run_expr("false"))
-        self.assertEqual(None, run_expr("nil"))
+        self.assertEqual(1, evaluate_expr("1"))
+        self.assertEqual(2.4, evaluate_expr("2.4"))
+        self.assertEqual("hi", evaluate_expr('"hi"'))
+        self.assertEqual(True, evaluate_expr("true"))
+        self.assertEqual(False, evaluate_expr("false"))
+        self.assertEqual(None, evaluate_expr("nil"))
 
     def test_it_interprets_grouping_expression(self):
-        self.assertEqual(None, run_expr("(nil)"))
+        self.assertEqual(None, evaluate_expr("(nil)"))
 
     def test_it_interprets_unary_expressions(self):
-        self.assertEqual(-2, run_expr("-2"))
-        self.assertEqual(2, run_expr("--2"))
-        self.assertEqual(True, run_expr("!false"))
-        self.assertEqual(False, run_expr("!!false"))
+        self.assertEqual(-2, evaluate_expr("-2"))
+        self.assertEqual(2, evaluate_expr("--2"))
+        self.assertEqual(True, evaluate_expr("!false"))
+        self.assertEqual(False, evaluate_expr("!!false"))
 
     def test_it_interprets_binary_expressions(self):
-        self.assertEqual(2, run_expr("1 + 1"))
-        self.assertEqual(-2, run_expr("1 - 3"))
-        self.assertEqual(8, run_expr("1 * 8"))
-        self.assertEqual(2, run_expr("4 / 2"))
-        self.assertEqual("foobar", run_expr('"foo" + "bar"'))
-        self.assertEqual("foo", run_expr('"foobar" - "bar"'))
-        self.assertEqual(False, run_expr("1 > 2"))
-        self.assertEqual(True, run_expr("2 > 1"))
-        self.assertEqual(True, run_expr("1 < 2"))
-        self.assertEqual(False, run_expr("2 < 1"))
-        self.assertEqual(True, run_expr("1 <= 2"))
-        self.assertEqual(True, run_expr("2 <= 2"))
-        self.assertEqual(False, run_expr("3 <= 2"))
-        self.assertEqual(False, run_expr("1 >= 2"))
-        self.assertEqual(True, run_expr("2 >= 2"))
-        self.assertEqual(True, run_expr("3 >= 2"))
-        self.assertEqual(True, run_expr("1 == 1"))
-        self.assertEqual(False, run_expr("1 == 2"))
-        self.assertEqual(False, run_expr('1 == "1"'))
-        self.assertEqual(True, run_expr('"foo" == "foo"'))
-        self.assertEqual(False, run_expr('"foo" == "bar"'))
-        self.assertEqual(True, run_expr("nil == nil"))
-        self.assertEqual(False, run_expr("nil == 2"))
-        self.assertEqual(False, run_expr("1 != 1"))
-        self.assertEqual(True, run_expr("1 != 2"))
-        self.assertEqual(True, run_expr("true == true"))
-        self.assertEqual(False, run_expr("true == false"))
+        self.assertEqual(2, evaluate_expr("1 + 1"))
+        self.assertEqual(-2, evaluate_expr("1 - 3"))
+        self.assertEqual(8, evaluate_expr("1 * 8"))
+        self.assertEqual(2, evaluate_expr("4 / 2"))
+        self.assertEqual("foobar", evaluate_expr('"foo" + "bar"'))
+        self.assertEqual("foo", evaluate_expr('"foobar" - "bar"'))
+        self.assertEqual(False, evaluate_expr("1 > 2"))
+        self.assertEqual(True, evaluate_expr("2 > 1"))
+        self.assertEqual(True, evaluate_expr("1 < 2"))
+        self.assertEqual(False, evaluate_expr("2 < 1"))
+        self.assertEqual(True, evaluate_expr("1 <= 2"))
+        self.assertEqual(True, evaluate_expr("2 <= 2"))
+        self.assertEqual(False, evaluate_expr("3 <= 2"))
+        self.assertEqual(False, evaluate_expr("1 >= 2"))
+        self.assertEqual(True, evaluate_expr("2 >= 2"))
+        self.assertEqual(True, evaluate_expr("3 >= 2"))
+        self.assertEqual(True, evaluate_expr("1 == 1"))
+        self.assertEqual(False, evaluate_expr("1 == 2"))
+        self.assertEqual(False, evaluate_expr('1 == "1"'))
+        self.assertEqual(True, evaluate_expr('"foo" == "foo"'))
+        self.assertEqual(False, evaluate_expr('"foo" == "bar"'))
+        self.assertEqual(True, evaluate_expr("nil == nil"))
+        self.assertEqual(False, evaluate_expr("nil == 2"))
+        self.assertEqual(False, evaluate_expr("1 != 1"))
+        self.assertEqual(True, evaluate_expr("1 != 2"))
+        self.assertEqual(True, evaluate_expr("true == true"))
+        self.assertEqual(False, evaluate_expr("true == false"))
 
     def test_it_interprets_ternary_expressions(self):
-        self.assertEqual(1, run_expr("true ? 1 : 2"))
-        self.assertEqual(2, run_expr("false ? 1 : 2"))
-        self.assertEqual(1, run_expr("!false ? 1 : 2"))
+        self.assertEqual(1, evaluate_expr("true ? 1 : 2"))
+        self.assertEqual(2, evaluate_expr("false ? 1 : 2"))
+        self.assertEqual(1, evaluate_expr("!false ? 1 : 2"))
 
     def test_it_validates_types(self):
         self.assertError(
-            "Operand of (-) must be of type number, nil given", lambda: run_expr("-nil")
+            "Operand of (-) must be of type number, nil given",
+            lambda: evaluate_expr("-nil"),
         )
 
         self.assertError(
             "Operand of (!) must be of type bool, number given",
-            lambda: run_expr("!2.3"),
+            lambda: evaluate_expr("!2.3"),
         )
         self.assertError(
             "Operands of (+) must be of the same type. number and string given",
-            lambda: run_expr("1 + 'foo'"),
+            lambda: evaluate_expr("1 + 'foo'"),
         )
         self.assertError(
             "Operands of (+) must be of type number or string, bool given",
-            lambda: run_expr("true + false"),
+            lambda: evaluate_expr("true + false"),
         )
 
     def test_it_interprets_variable_declarations_and_expressions(self):
-        (tokens, _) = Scanner("var a = 4;").scan()
-        (ast, _) = Parser(tokens).parse()
-        interpreter = Interpreter(ast)
-        interpreter.interpret()
-        value = interpreter.evaluate(VariableExpression(identifier("a")))
+        interpreter = Interpreter.from_code("var a = 4;")
+        value = interpreter.evaluate(Parser.parse_expr("a"))
         self.assertEqual(4, value)
 
     def test_it_interprets_variable_assignments(self):
-        (tokens, _) = Scanner("var a;").scan()
-        (ast, _) = Parser(tokens).parse()
-        interpreter = Interpreter(ast)
-        interpreter.interpret()
-        value = interpreter.evaluate(
-            AssignmentExpression(
-                identifier("a"), Token(Type.EQUAL, "=", None, 1), LiteralExpression(3)
-            )
-        )
+        interpreter = Interpreter.from_code("var a;")
+        value = interpreter.evaluate(Parser.parse_expr("a = 3"))
         self.assertEqual(3, value)
 
-        value = interpreter.evaluate(VariableExpression(identifier("a")))
+        value = interpreter.evaluate(Parser.parse_expr("a"))
         self.assertEqual(3, value)
 
     def assertError(self, message, program):
@@ -111,7 +101,6 @@ class InterpreterTest(unittest.TestCase):
         self.assertTrue(threw, "Expected code to error")
 
 
-def run_expr(code):
-    (tokens, _) = Scanner(f"{code};").scan()
-    (ast, _) = Parser(tokens).parse()
-    return Interpreter(Program([])).evaluate(ast.statements[0].expression)
+def evaluate_expr(code):
+    interpreter = Interpreter.from_code(f"{code};")
+    return interpreter.evaluate(interpreter.ast.statements[0].expression)

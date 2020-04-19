@@ -15,6 +15,8 @@ from lib.ast import (
 )
 from lib.error import RuntimeError, TypeError
 from lib.environment import Environment
+from lib.scanner import Scanner
+from lib.parser import Parser
 
 
 class Interpreter:
@@ -131,6 +133,27 @@ class Interpreter:
         raise ValueError(
             "[interpreter] Unsupported expression type [%s]" % expr.__class__.__name__
         )
+
+    @staticmethod
+    def from_code(code):
+        (tokens, scan_errors) = Scanner(code).scan()
+        for error in scan_errors:
+            raise error
+
+        (ast, parse_errors) = Parser(tokens).parse()
+        for error in parse_errors:
+            raise error
+
+        interpreter = Interpreter(ast)
+
+        interpreter.interpret()
+
+        return interpreter
+
+    @staticmethod
+    def evaluate_expr(code):
+        interpreter = Interpreter.from_code(f"{code};")
+        return interpreter.evaluate(interpreter.ast.statements[0].expression)
 
 
 class Assert:

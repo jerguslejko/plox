@@ -1,6 +1,7 @@
 import lib.ast as ast
 from lib.token import Type
 from lib.error import ParseError
+from lib.scanner import Scanner
 
 
 class Parser:
@@ -223,3 +224,19 @@ class Parser:
             return ast.VariableExpression(self.previous())
 
         raise self.error(self.peek(), "Expected expression")
+
+    @staticmethod
+    def parse_code(code):
+        (tokens, scan_errors) = Scanner(code).scan()
+        for error in scan_errors:
+            raise error
+
+        (program, parse_errors) = Parser(tokens).parse()
+        for error in parse_errors:
+            raise error
+
+        return program
+
+    @staticmethod
+    def parse_expr(code):
+        return Parser.parse_code(f"{code};").statements[0].expression
