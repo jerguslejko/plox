@@ -59,8 +59,18 @@ def run(code):
         return False
 
 def print_ast(code):
-    (tokens, _) = Scanner(code).scan()
-    (ast, _) = Parser(tokens).parse()
+    (tokens, scan_errors) = Scanner(code).scan()
+    for (line, message) in scan_errors:
+        print("scan error on line %d: %s" % (line, message))
+    if len(scan_errors) > 0:
+        return False
+
+    (ast, parse_errors) = Parser(tokens).parse()
+    for (token, message) in parse_errors:
+        print("parse error on line %d: %s" % (token.line, message))
+    if len(parse_errors) > 0:
+        return False
+
     ast.show()
 
 def read_file(name):
