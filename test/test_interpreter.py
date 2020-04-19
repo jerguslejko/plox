@@ -122,6 +122,16 @@ class InterpreterTest(unittest.TestCase):
         else:
             self.fail("Expected exception")
 
+    def test_if_statements(self):
+        interpreter = Interpreter.from_code("if (true) { print 1; } else { print 2; }")
+        self.assertEqual(["1"], interpreter.printer.get())
+
+        interpreter = Interpreter.from_code("if (3 < 1) { print 1; } else { print 2; }")
+        self.assertEqual(["2"], interpreter.printer.get())
+
+        interpreter = Interpreter.from_code("if (false) { print 1; }")
+        self.assertEqual([], interpreter.printer.get())
+
 
 def evaluate_expr(code):
     interpreter = Interpreter.from_code(f"{code};")

@@ -6,6 +6,7 @@ from lib.ast import (
     VariableDeclaration,
     ExpressionStatement,
     PrintStatement,
+    IfStatement,
     BinaryExpression,
     UnaryExpression,
     LiteralExpression,
@@ -64,6 +65,18 @@ class Interpreter:
                     self.execute(s)
             finally:
                 self.env = previous_env
+
+            return None
+
+        if isinstance(statement, IfStatement):
+            test = self.evaluate(statement.test)
+            Assert.operand_type(test, [bool], None)
+
+            if test:
+                self.execute(statement.then)
+            else:
+                if statement.neht is not None:
+                    self.execute(statement.neht)
 
             return None
 

@@ -108,6 +108,9 @@ class Parser:
         return ast.VariableDeclaration(identifier, initializer)
 
     def statement(self):
+        if self.match_any(Type.IF):
+            return self.if_statement()
+
         if self.match_any(Type.PRINT):
             return self.print_statement()
 
@@ -139,6 +142,14 @@ class Parser:
 
         self.consume(Type.SEMICOLON, "Expected semicolon after statement")
         return ast.PrintStatement(exprs)
+
+    def if_statement(self):
+        self.consume(Type.LEFT_PAREN, "Expected left parenthesis on IF statement")
+        test = self.expression()
+        self.consume(Type.RIGHT_PAREN, "Expected right parenthesis on IF statement")
+        then = self.statement()
+        neht = self.statement() if self.match_any(Type.ELSE) else None
+        return ast.IfStatement(test, then, neht)
 
     def expression(self):
         return self.assignment()

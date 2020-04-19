@@ -305,6 +305,50 @@ class ParserTest(unittest.TestCase):
         else:
             self.fail("Expected exception")
 
+    def test_if_statements(self):
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.IfStatement(
+                        ast.LiteralExpression(True),
+                        ast.ExpressionStatement(ast.LiteralExpression(1)),
+                        None,
+                    )
+                ]
+            ),
+            parse("if (true) 1;"),
+        )
+
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.IfStatement(
+                        ast.LiteralExpression(True),
+                        ast.ExpressionStatement(ast.LiteralExpression(1)),
+                        ast.ExpressionStatement(ast.LiteralExpression(2)),
+                    )
+                ]
+            ),
+            parse("if (true) 1; else 2;"),
+        )
+
+        self.assertEqual(
+            ast.Program(
+                [
+                    ast.IfStatement(
+                        ast.LiteralExpression(True),
+                        ast.IfStatement(
+                            ast.LiteralExpression(False),
+                            ast.ExpressionStatement(ast.LiteralExpression(3)),
+                            ast.ExpressionStatement(ast.LiteralExpression(2)),
+                        ),
+                        None,
+                    )
+                ]
+            ),
+            parse("if (true) if (false) 3; else 2;"),
+        )
+
 
 def parse(code):
     return Parser.parse_code(code)

@@ -41,6 +41,13 @@ class VariableDeclaration(Statement):
         self.initializer = initializer
 
 
+class IfStatement(Statement):
+    def __init__(self, test, then, neht):
+        self.test = test
+        self.then = then
+        self.neht = neht
+
+
 class Expression(AST):
     pass
 
