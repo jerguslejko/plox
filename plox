@@ -43,34 +43,34 @@ def main():
 
 def run(code):
     (tokens, scan_errors) = Scanner(code).scan()
-    for (line, message) in scan_errors:
-        print("scan error on line %d: %s" % (line, message))
+    for error in scan_errors:
+        print(error)
     if len(scan_errors) > 0:
         return
 
     (ast, parse_errors) = Parser(tokens).parse()
-    for (token, message) in parse_errors:
-        print("parse error on line %d: %s" % (token.line, message))
+    for error in parse_errors:
+        print(error)
     if len(parse_errors) > 0:
         return
 
     try:
         Interpreter(ast).interpret()
     except RuntimeError as e:
-        print("runtime error on line %d: %s" % (e.token.line, e.message))
+        print(e)
 
 def print_ast(code):
     (tokens, scan_errors) = Scanner(code).scan()
-    for (line, message) in scan_errors:
-        print("scan error on line %d: %s" % (line, message))
+    for error in scan_errors:
+        print(error)
     if len(scan_errors) > 0:
-        return False
+        return
 
     (ast, parse_errors) = Parser(tokens).parse()
-    for (token, message) in parse_errors:
-        print("parse error on line %d: %s" % (token.line, message))
+    for error in parse_errors:
+        print(error)
     if len(parse_errors) > 0:
-        return False
+        return
 
     ast.show()
 

@@ -1,8 +1,9 @@
 import unittest
 import lib.ast as ast
-from lib.parser import Parser, ParseError
+from lib.parser import Parser
 from lib.scanner import Scanner
 from lib.token import Token, Type
+from lib.error import ParseError
 
 
 class ParserTest(unittest.TestCase):
@@ -202,7 +203,8 @@ class ParserTest(unittest.TestCase):
 
         self.assertEqual(None, ast)
         self.assertEqual(
-            [(Token(Type.EOF, "", None, 1), "Expected ')' after expression")], errors
+            [ParseError(Token(Type.EOF, "", None, 1), "Expected ')' after expression")],
+            errors,
         )
 
     def test_it_parses_statements(self):
@@ -272,7 +274,7 @@ def parse(code):
 
     if len(errors) > 0:
         for e in errors:
-            raise ValueError(e[1])
+            raise e
 
     return ast
 

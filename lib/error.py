@@ -6,13 +6,39 @@ class RuntimeError(BaseException):
         self.token = token
         self.message = message
 
+    def __str__(self):
+        return "runtime error on line %d: %s" % (self.token.line, self.message)
+
+    def __eq__(self, other):
+        return self.token == other.token and self.message == other.message
+
 
 class CompileError(BaseException):
     pass
 
 
+class ScanError(CompileError):
+    def __init__(self, line, message):
+        self.line = line
+        self.message = message
+
+    def __str__(self):
+        return "scan error on line %d: %s" % (self.line, self.message)
+
+    def __eq__(self, other):
+        return self.line == other.line and self.message == other.message
+
+
 class ParseError(CompileError):
-    pass
+    def __init__(self, token, message):
+        self.token = token
+        self.message = message
+
+    def __str__(self):
+        return "parse error on line %d: %s" % (self.token.line, self.message)
+
+    def __eq__(self, other):
+        return self.token == other.token and self.message == other.message
 
 
 class UndefinedVariableError(RuntimeError):

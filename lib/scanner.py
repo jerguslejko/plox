@@ -1,4 +1,5 @@
 from lib.token import Token, Type
+from lib.error import ScanError
 
 
 class Scanner:
@@ -177,4 +178,4 @@ class Scanner:
         )
 
     def error(self, message):
-        self.errors.append((self.line, message))
+        self.errors.append(ScanError(self.line, message))

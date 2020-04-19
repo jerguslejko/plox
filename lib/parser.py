@@ -52,8 +52,9 @@ class Parser:
         raise self.error(self.peek(), message)
 
     def error(self, token, message):
-        self.errors.append((token, message))
-        return ParseError()
+        error = ParseError(token, message)
+        self.errors.append(error)
+        return error
 
     def check(self, type):
         if self.at_end():

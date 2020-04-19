@@ -1,6 +1,7 @@
 import unittest
 from lib.scanner import Scanner
 from lib.token import Token, Type
+from lib.error import ScanError
 
 
 class ScannerTest(unittest.TestCase):
@@ -104,14 +105,14 @@ class ScannerTest(unittest.TestCase):
     def test_it_reports_unterminated_string(self):
         (tokens, errors) = Scanner('"hello').scan()
 
-        self.assertEqual([(1, "Unterminated string")], errors)
+        self.assertEqual([ScanError(1, "Unterminated string")], errors)
         self.assertEqual([], tokens[:-1])
 
     def test_it_reports_unknown_char(self):
         (tokens, errors) = Scanner("@").scan()
 
         self.assertEqual([], tokens[:-1])
-        self.assertEqual([(1, "Unrecognized character [@]")], errors)
+        self.assertEqual([ScanError(1, "Unrecognized character [@]")], errors)
 
 
 def scan(code):
