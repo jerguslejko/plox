@@ -1,3 +1,6 @@
+import black
+
+
 class AST:
     def show(self):
         from lib.dot_printer import show_ast
@@ -5,7 +8,10 @@ class AST:
         show_ast(self)
 
     def __repr__(self):
-        return "%s(%s)" % (self.__class__.__name__, vars(self))
+        return "%s(%s)" % (
+            self.__class__.__name__,
+            black.format_str(str(vars(self)), mode=black.FileMode()),
+        )
 
     def __eq__(self, other):
         return isinstance(self, type(other)) and vars(self) == vars(other)

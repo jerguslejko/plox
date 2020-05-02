@@ -3,12 +3,17 @@ from math import floor, ceil
 
 
 class TestCase(unittest.TestCase):
+    maxDiff = None
+
     def assertAstMatches(self, expected, actual, visual=True):
         if visual:
             if expected != actual:
                 self.dumpAst("Expected AST", expected)
                 self.dumpAst("Actual AST", actual)
-                self.fail("shit ain't good")
+
+                self.assertEqual(str(expected), str(actual))
+
+                self.fail("ASTs don't match.")
         else:
             self.assertEqual(expected, actual)
 
