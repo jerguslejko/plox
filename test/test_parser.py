@@ -1,4 +1,4 @@
-import unittest
+from test.TestCase import TestCase
 import lib.ast as ast
 from lib.parser import Parser
 from lib.scanner import Scanner
@@ -6,7 +6,7 @@ from lib.token import Token, Type
 from lib.error import ParseError
 
 
-class ParserTest(unittest.TestCase):
+class ParserTest(TestCase):
     def test_it_parses_literals(self):
         self.assertEqual(
             ast.LiteralExpression(1), Parser.parse_expr("1"),
@@ -214,23 +214,22 @@ class ParserTest(unittest.TestCase):
         )
 
     def test_it_parses_statements(self):
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.ExpressionStatement(ast.LiteralExpression(1)),
                     ast.ExpressionStatement(ast.LiteralExpression(2)),
                 ]
             ),
-            parse("1;\n2;"),
+            "1;\n2;",
         )
 
     def test_it_parses_print_statement(self):
-        self.assertEqual(
-            ast.Program([ast.PrintStatement([ast.LiteralExpression(1)])]),
-            parse("print 1;"),
+        self.assertParseTree(
+            ast.Program([ast.PrintStatement([ast.LiteralExpression(1)])]), "print 1;",
         )
 
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.PrintStatement(
@@ -238,19 +237,19 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("print 1, 2;"),
+            "print 1, 2;",
         )
 
     def test_it_parses_variable_declaration(self):
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [ast.VariableDeclaration(Token(Type.IDENTIFIER, "a", "a", 1), None)]
             ),
-            parse("var a;"),
+            "var a;",
         )
 
     def test_it_parses_variable_declaration_with_initializer(self):
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.VariableDeclaration(
@@ -258,11 +257,11 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("var a = 4;"),
+            "var a = 4;",
         )
 
     def test_it_parser_variable_expression(self):
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.ExpressionStatement(
@@ -270,11 +269,11 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("a;"),
+            "a;",
         )
 
     def test_it_parses_variable_assignment(self):
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.ExpressionStatement(
@@ -286,27 +285,27 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("a = 3;"),
+            "a = 3;",
         )
 
     def test_it_parses_block(self):
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [ast.Block([ast.ExpressionStatement(ast.LiteralExpression(None))])]
             ),
-            parse("{ nil; }"),
+            "{ nil; }",
         )
 
     def test_it_fails_when_assignment_target_is_not_variable(self):
         try:
-            parse("var a; var b; a + b = 1")
+            Parser.parse_code("var a; var b; a + b = 1")
         except ParseError as e:
             pass
         else:
             self.fail("Expected exception")
 
     def test_if_statements(self):
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.IfStatement(
@@ -316,10 +315,10 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("if (true) 1;"),
+            "if (true) 1;",
         )
 
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.IfStatement(
@@ -329,10 +328,10 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("if (true) 1; else 2;"),
+            "if (true) 1; else 2;",
         )
 
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.IfStatement(
@@ -346,11 +345,11 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("if (true) if (false) 3; else 2;"),
+            "if (true) if (false) 3; else 2;",
         )
 
     def test_logical_operators(self):
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.ExpressionStatement(
@@ -366,11 +365,11 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("1 and 2 or 3;"),
+            "1 and 2 or 3;",
         )
 
     def test_while_expression(self):
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.WhileStatement(
@@ -380,11 +379,11 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("while (true) {}"),
+            "while (true) {}",
         )
 
     def test_for_expression(self):
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.Block(
@@ -398,10 +397,10 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("for (;;) {}"),
+            "for (;;) {}",
         )
 
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.Block(
@@ -419,10 +418,10 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("for (var a = 0;;) {}"),
+            "for (var a = 0;;) {}",
         )
 
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.Block(
@@ -446,10 +445,10 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("for (var a = 0; a < 10;) {}"),
+            "for (var a = 0; a < 10;) {}",
         )
 
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.Block(
@@ -491,10 +490,10 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("for (var a = 0; a < 10; a = a + 1) {}"),
+            "for (var a = 0; a < 10; a = a + 1) {}",
         )
 
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.Block(
@@ -515,10 +514,10 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("for (a = 0;;) {}"),
+            "for (a = 0;;) {}",
         )
 
-        self.assertEqual(
+        self.assertParseTree(
             ast.Program(
                 [
                     ast.Block(
@@ -545,9 +544,10 @@ class ParserTest(unittest.TestCase):
                     )
                 ]
             ),
-            parse("for (;;1) { 2; }"),
+            "for (;;1) { 2; }",
         )
 
+    # helpers
 
-def parse(code):
-    return Parser.parse_code(code)
+    def assertParseTree(self, tree, code):
+        self.assertAstMatches(tree, Parser.parse_code(code))
