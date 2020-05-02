@@ -1,5 +1,7 @@
 import os
 import tempfile
+from imgcat import imgcat
+from graphviz import Source
 from functools import reduce
 from lib.token import Token, Type
 from lib.ast import (
@@ -158,7 +160,4 @@ def print_ast(ast):
 
 
 def show_ast(ast):
-    file = tempfile.NamedTemporaryFile(mode="w", delete=False)
-    file.write(print_ast(ast))
-    file.close()
-    os.system(r"dot -Tpng -Gsize=18,18\! -Gdpi=100 %s | imgcat" % (file.name))
+    imgcat(Source(print_ast(ast), format="png").pipe())
