@@ -547,6 +547,92 @@ class ParserTest(TestCase):
             "for (;;1) { 2; }",
         )
 
+    def test_function_calls(self):
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.CallExpression(
+                            ast.VariableExpression(
+                                Token(Type.IDENTIFIER, "foo", "foo", 1)
+                            ),
+                            Token(Type.RIGHT_PAREN, ")", None, 1),
+                            [],
+                        )
+                    )
+                ]
+            ),
+            "foo();",
+        )
+
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.CallExpression(
+                            ast.VariableExpression(
+                                Token(Type.IDENTIFIER, "foo", "foo", 1)
+                            ),
+                            Token(Type.RIGHT_PAREN, ")", None, 1),
+                            [ast.LiteralExpression(1)],
+                        )
+                    )
+                ]
+            ),
+            "foo(1);",
+        )
+
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.CallExpression(
+                            ast.VariableExpression(
+                                Token(Type.IDENTIFIER, "foo", "foo", 1)
+                            ),
+                            Token(Type.RIGHT_PAREN, ")", None, 1),
+                            [
+                                ast.LiteralExpression(1),
+                                ast.VariableExpression(
+                                    Token(Type.IDENTIFIER, "b", "b", 1)
+                                ),
+                            ],
+                        )
+                    )
+                ]
+            ),
+            "foo(1, b);",
+        )
+
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.CallExpression(
+                            ast.CallExpression(
+                                ast.VariableExpression(
+                                    Token(Type.IDENTIFIER, "f", "f", 1)
+                                ),
+                                Token(Type.RIGHT_PAREN, ")", None, 1),
+                                [ast.LiteralExpression(1)],
+                            ),
+                            Token(Type.RIGHT_PAREN, ")", None, 1),
+                            [ast.LiteralExpression(2)],
+                        )
+                    )
+                ]
+            ),
+            "f(1)(2);",
+        )
+
+    def test_maximum_argument_count(self):
+        try:
+            Parser.parse_code("f(%s);" % ", ".join(["1"] * 256))
+        except ParseError as e:
+            self.assertEqual("Maximum argument count of 255 exceeded", e.message)
+        else:
+            self.fail("Expected exception")
+
     # helpers
 
     def assertParseTree(self, tree, code):

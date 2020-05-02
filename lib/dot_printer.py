@@ -18,6 +18,7 @@ from lib.ast import (
     VariableExpression,
     AssignmentExpression,
     LogicalExpression,
+    CallExpression,
 )
 
 
@@ -81,6 +82,30 @@ def print_expr(expr):
             '%s [label="AssignmentExpression(%s)"]' % (id(expr), expr.left.lexeme),
             "%s -> %s" % (id(expr), id(expr.right)),
         ] + print_expr(expr.right)
+
+    if isinstance(expr, CallExpression):
+        return (
+            [
+                '%s [label="CallExpression"]' % id(expr),
+                "%s -> %s" % (id(expr), id(expr.callee)),
+                'subgraph cluster_%s_callee { label="callee" %s }'
+                % (id(expr), id(expr.callee)),
+                "%s -> { %s }"
+                % (
+                    id(expr),
+                    ", ".join(map(lambda e: str(id(e)), reversed(expr.arguments))),
+                ),
+            ]
+            + print_expr(expr.callee)
+            + reduce(
+                lambda xs, expr: print_expr(expr) + xs,
+                expr.arguments,
+                [
+                    'subgraph cluster_%s_arguments { label="arguments"; %s }'
+                    % (id(expr), "; ".join(map(lambda e: str(id(e)), expr.arguments))),
+                ],
+            )
+        )
 
     raise ValueError("Expression [%s] not supported" % type(expr))
 

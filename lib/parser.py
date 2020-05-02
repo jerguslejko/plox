@@ -299,7 +299,34 @@ class Parser:
         if self.match_any(Type.BANG, Type.MINUS):
             return ast.UnaryExpression(self.previous(), self.unary())
 
-        return self.primary()
+        return self.call()
+
+    def call(self):
+        expr = self.primary()
+
+        while True:
+            if self.match_any(Type.LEFT_PAREN):
+                arguments = []
+
+                if not self.matches(Type.RIGHT_PAREN):
+                    arguments.append(self.expression())
+
+                    while self.match_any(Type.COMMA):
+                        if len(arguments) >= 255:
+                            self.error(
+                                self.peek(), "Maximum argument count of 255 exceeded"
+                            )
+
+                        arguments.append(self.expression())
+
+                self.consume(Type.RIGHT_PAREN, "Expected closing parenthesis")
+                token = self.previous()
+
+                expr = ast.CallExpression(expr, token, arguments)
+            else:
+                break
+
+        return expr
 
     def primary(self):
         if self.match_any(Type.TRUE):

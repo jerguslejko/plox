@@ -112,3 +112,10 @@ class LogicalExpression(Expression):
         self.left = left
         self.token = token
         self.right = right
+
+
+class CallExpression(Expression):
+    def __init__(self, callee, token, arguments):
+        self.callee = callee
+        self.token = token
+        self.arguments = arguments
