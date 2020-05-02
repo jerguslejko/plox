@@ -1,4 +1,4 @@
-from lib.token import Type
+from lib.token import Type, identifier
 from lib.stringify import stringify
 from lib.ast import (
     Program,
@@ -29,7 +29,8 @@ class Interpreter:
 
     def __init__(self, ast):
         self.ast = ast
-        self.env = Environment()
+        self.globals = global_environment()
+        self.env = self.globals
         self.printer = Interpreter.printer()
 
     def interpret(self):
@@ -240,3 +241,11 @@ class Assert:
     def operands_same_type(value1, value2, token):
         if type(value1) is not type(value2):
             raise TypeError.operand_mismatch(token, value1, value2)
+
+
+def global_environment():
+    env = Environment()
+
+    env.define(identifier("clock"), "Pending implementation...")
+
+    return env

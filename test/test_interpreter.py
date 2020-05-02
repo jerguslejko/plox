@@ -5,11 +5,19 @@ from lib.scanner import Scanner
 from lib.interpreter import Interpreter
 from lib.error import UninitializedVariableError
 from lib.io import FakePrinter
+from lib.token import identifier
 
 
 class InterpreterTest(unittest.TestCase):
     def setUp(self):
         Interpreter.printer = FakePrinter
+
+    def test_global_environment(self):
+        interpreter = Interpreter.from_code("")
+
+        self.assertEqual(
+            "Pending implementation...", interpreter.env.get(identifier("clock"))
+        )
 
     def test_it_interprets_literals(self):
         self.assertEqual(1, evaluate_expr("1"))
