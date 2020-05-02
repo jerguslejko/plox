@@ -46,6 +46,13 @@ class VariableDeclaration(Statement):
         self.initializer = initializer
 
 
+class FunctionDeclaration(Statement):
+    def __init__(self, name, parameters, body):
+        self.name = name
+        self.parameters = parameters
+        self.body = body
+
+
 class IfStatement(Statement):
     def __init__(self, test, then, neht):
         self.test = test

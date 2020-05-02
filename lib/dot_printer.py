@@ -8,6 +8,7 @@ from lib.ast import (
     Block,
     ExpressionStatement,
     VariableDeclaration,
+    FunctionDeclaration,
     PrintStatement,
     WhileStatement,
     BinaryExpression,
@@ -164,6 +165,17 @@ def print_statement(statement):
             + print_expr(statement.test)
             + print_statement(statement.body)
         )
+
+    if isinstance(statement, FunctionDeclaration):
+        return [
+            '%s [label="FunctionDeclaration(%s)(%s)"]'
+            % (
+                id(statement),
+                statement.name.lexeme,
+                ", ".join(map(lambda p: p.lexeme, statement.parameters)),
+            ),
+            "%s -> %s" % (id(statement), id(statement.body)),
+        ] + print_statement(statement.body)
 
     raise ValueError("Statement [%s] not supported" % type(statement))
 

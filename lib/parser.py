@@ -90,6 +90,9 @@ class Parser:
             if self.match_any(Type.VAR):
                 return self.variable_declaration()
 
+            if self.match_any(Type.FUN):
+                return self.function_declaration()
+
             return self.statement()
         except ParseError as e:
             self.synchronize(e)
@@ -100,6 +103,33 @@ class Parser:
         initializer = self.expression() if self.match_any(Type.EQUAL) else None
         self.consume(Type.SEMICOLON, "Expected semicolon after variable declaration")
         return ast.VariableDeclaration(identifier, initializer)
+
+    def function_declaration(self):
+        identifier = self.consume(Type.IDENTIFIER, "Expected function name")
+
+        self.consume(Type.LEFT_PAREN, "Expected ( after function name")
+
+        parameters = []
+
+        if not self.matches(Type.RIGHT_PAREN):
+            parameters.append(
+                self.consume(Type.IDENTIFIER, "Expected argument after (")
+            )
+
+            while self.match_any(Type.COMMA):
+                if len(parameters) >= 255:
+                    self.error(self.peek(), "Maximum parameter count of 255 exceeded")
+
+                parameters.append(
+                    self.consume(Type.IDENTIFIER, "Expected argument after ,")
+                )
+
+        self.consume(Type.RIGHT_PAREN, "Expected ) after function name")
+        self.consume(Type.LEFT_BRACE, "Expected { before function body")
+
+        body = self.block()
+
+        return ast.FunctionDeclaration(identifier, parameters, body)
 
     def statement(self):
         if self.match_any(Type.WHILE):

@@ -633,6 +633,55 @@ class ParserTest(TestCase):
         else:
             self.fail("Expected exception")
 
+    def test_function_declaration(self):
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.FunctionDeclaration(
+                        Token(Type.IDENTIFIER, "foo", "foo", 1), [], ast.Block([])
+                    )
+                ]
+            ),
+            "fun foo() {}",
+        )
+
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.FunctionDeclaration(
+                        Token(Type.IDENTIFIER, "foo", "foo", 1),
+                        [Token(Type.IDENTIFIER, "a", "a", 1)],
+                        ast.Block([]),
+                    )
+                ]
+            ),
+            "fun foo(a) {}",
+        )
+
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.FunctionDeclaration(
+                        Token(Type.IDENTIFIER, "foo", "foo", 1),
+                        [
+                            Token(Type.IDENTIFIER, "a", "a", 1),
+                            Token(Type.IDENTIFIER, "b", "b", 1),
+                        ],
+                        ast.Block([]),
+                    )
+                ]
+            ),
+            "fun foo(a, b) {}",
+        )
+
+    def test_maximum_parameter_count(self):
+        try:
+            Parser.parse_code("fun f(%s) {}" % ", ".join(["x"] * 256))
+        except ParseError as e:
+            self.assertEqual("Maximum parameter count of 255 exceeded", e.message)
+        else:
+            self.fail("Expected exception")
+
     # helpers
 
     def assertParseTree(self, tree, code):
