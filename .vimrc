@@ -11,7 +11,7 @@ function RunTest()
     endif
 
     if filereadable("test/".test_module.".py")
-        echo system("python3 -B -m unittest test.".test_module)
+        execute "!python3 -B -m unittest test.".test_module
     endif
 endfunction
 
