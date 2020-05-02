@@ -12,11 +12,12 @@ from lib.scanner import Scanner
 from lib.interpreter import Interpreter
 from lib.error import RuntimeError, CompileError, ParseError, ScanError
 from lib.stringify import stringify
+from lib.dot_printer import to_dot
 
 def main():
     parser = argparse.ArgumentParser(description="Welcome to Python LOX")
     parser.add_argument('file', nargs='?')
-    parser.add_argument('--ast', action='store_true', help="Print AST")
+    parser.add_argument('--ast', nargs='?', const="img", choices=["img", "raw", "dot"], help="Print AST")
     parser.add_argument('--tokens', action='store_true', help="Print token stream")
     args = parser.parse_args()
 
@@ -38,7 +39,7 @@ def main():
             run_repl()
 
 
-def run(code, print_ast=False, print_tokens=False):
+def run(code, print_ast=None, print_tokens=False):
     (tokens, scan_errors) = Scanner(code).scan()
     for error in scan_errors:
         print(error)
@@ -56,7 +57,13 @@ def run(code, print_ast=False, print_tokens=False):
         return False
 
     if print_ast:
-        ast.show()
+        if print_ast == "img":
+            ast.show()
+        elif print_ast == "raw":
+            print(ast)
+        elif print_ast == "dot":
+            print(to_dot(ast))
+
         return True
 
     try:

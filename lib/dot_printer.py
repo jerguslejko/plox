@@ -155,9 +155,9 @@ def print_program(ast):
     )
 
 
-def print_ast(ast):
+def to_dot(ast):
     return "digraph { %s }" % "; ".join(print_program(ast))
 
 
 def show_ast(ast):
-    imgcat(Source(print_ast(ast), format="png").pipe())
+    imgcat(Source(to_dot(ast), format="png").pipe())
