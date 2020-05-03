@@ -69,5 +69,5 @@ class Type(Enum):
         return "TokenType.%s" % self.name
 
 
-def identifier(name):
-    return Token(Type.IDENTIFIER, name, name, 0)
+def identifier(name, line=1):
+    return Token(Type.IDENTIFIER, name, name, line)
