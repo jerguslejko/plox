@@ -102,3 +102,36 @@ class EnvironmentTest(TestCase):
             pass
         else:
             self.fail("Expected exception")
+
+    def test_get_at(self):
+        env = Environment()
+        env.define(identifier("foo"), 5)
+
+        child = env.child()
+        child.define(identifier("foo"), 6)
+
+        self.assertEqual(6, child.get_at(0, identifier("foo")))
+        self.assertEqual(5, child.get_at(1, identifier("foo")))
+
+    def test_get_at_throws_when_going_too_deep(self):
+        env = Environment()
+
+        try:
+            env.get_at(5, identifier("foo"))
+        except ValueError as e:
+            self.assertEqual("E_TOO_DEEP", str(e))
+        else:
+            self.fail("Expected exception")
+
+    def test_assign_at(self):
+        env = Environment()
+        env.define(identifier("foo"), 5)
+
+        child = env.child()
+        child.define(identifier("foo"), 6)
+
+        child.assign_at(0, identifier("foo"), 99)
+        child.assign_at(1, identifier("foo"), 77)
+
+        self.assertEqual(99, child.get_at(0, identifier("foo")))
+        self.assertEqual(77, child.get_at(1, identifier("foo")))

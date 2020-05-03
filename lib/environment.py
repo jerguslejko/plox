@@ -45,3 +45,20 @@ class Environment:
 
     def child(self):
         return Environment(self)
+
+    def get_at(self, depth, name):
+        return self.ancestor(depth).get(name)
+
+    def assign_at(self, depth, name, value):
+        self.ancestor(depth).assign(name, value)
+
+    def ancestor(self, depth):
+        ancestor = self
+
+        for i in range(0, depth):
+            if ancestor.parent is None:
+                raise ValueError("E_TOO_DEEP")
+
+            ancestor = ancestor.parent
+
+        return ancestor
