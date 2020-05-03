@@ -15,11 +15,9 @@ class InterpreterTest(unittest.TestCase):
         Interpreter.printer = FakePrinter
 
     def test_global_environment(self):
-        interpreter = Interpreter.from_code("")
+        interpreter = Interpreter.from_code("var x = clock();")
 
-        self.assertEqual(
-            "Pending implementation...", interpreter.env.get(identifier("clock"))
-        )
+        self.assertTrue(isinstance(interpreter.evaluate(Parser.parse_expr("x")), float))
 
     def test_it_interprets_literals(self):
         self.assertEqual(1, evaluate_expr("1"))

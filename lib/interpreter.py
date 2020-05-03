@@ -27,7 +27,12 @@ from lib.environment import Environment
 from lib.scanner import Scanner
 from lib.parser import Parser
 from lib.io import RealPrinter, FakePrinter
-from lib.function import Function, AnonymousFunction, Callable
+from lib.function import (
+    Function,
+    AnonymousFunction,
+    Callable,
+)
+from lib.globals import ClockFunction, SleepFunction
 
 
 class Return(RuntimeError):
@@ -104,8 +109,9 @@ class Interpreter:
         if isinstance(statement, ReturnStatement):
             value = self.evaluate(statement.expression)
 
-            raise Return(value)
+            self.raise_return(value)
 
+            raise Return(value)
         raise ValueError(
             "[interpreter] Unsupported statement type [%s]"
             % statement.__class__.__name__
@@ -262,6 +268,9 @@ class Interpreter:
             "[interpreter] Unsupported expression type [%s]" % expr.__class__.__name__
         )
 
+    def raise_return(self, value):
+        raise Return(value)
+
     @staticmethod
     def from_code(code):
         (tokens, scan_errors) = Scanner(code).scan()
@@ -304,6 +313,7 @@ class Assert:
 def global_environment():
     env = Environment()
 
-    env.define(identifier("clock"), "Pending implementation...")
+    env.define(identifier("clock"), ClockFunction())
+    env.define(identifier("sleep"), SleepFunction())
 
     return env

@@ -1,0 +1,11 @@
+print "Sleeping for 3 seconds";
+
+var start = clock();
+
+sleep(3);
+
+var end = clock();
+
+var diff = end - start;
+
+print "Sleeping took:", diff, "seconds";
