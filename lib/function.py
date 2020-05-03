@@ -8,6 +8,10 @@ class Callable(ABC):
         pass
 
     @abstractmethod
+    def identifier(self):
+        pass
+
+    @abstractmethod
     def call(self, interpreter, arguments):
         pass
 
@@ -23,9 +27,8 @@ class Callable(ABC):
     def arity(self):
         pass
 
-    @abstractmethod
     def to_str(self):
-        pass
+        return "<fun %s>" % self.name()
 
 
 class Function(Callable):
@@ -33,8 +36,11 @@ class Function(Callable):
         self.declaration = declaration
         self.closure = closure
 
-    def name(self):
+    def identifier(self):
         return self.declaration.name
+
+    def name(self):
+        return self.identifier().lexeme
 
     def parameters(self):
         return self.declaration.parameters
@@ -52,6 +58,3 @@ class Function(Callable):
 
     def arity(self):
         return len(self.declaration.parameters)
-
-    def to_str(self):
-        return "<fn %s>" % self.declaration.name.lexeme

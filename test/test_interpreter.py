@@ -173,7 +173,7 @@ class InterpreterTest(unittest.TestCase):
         foo = interpreter.globals.get(identifier("foo"))
 
         self.assertTrue(isinstance(foo, Function))
-        self.assertEqual(identifier("foo"), foo.name())
+        self.assertEqual("foo", foo.name())
         self.assertEqual([identifier("a")], foo.parameters())
         self.assertEqual(ast.Block([]), foo.body())
 
