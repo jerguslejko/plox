@@ -108,7 +108,16 @@ class Parser:
         identifier = self.consume(Type.IDENTIFIER, "Expected function name")
 
         self.consume(Type.LEFT_PAREN, "Expected ( after function name")
+        parameters = self.parameters()
+        self.consume(Type.RIGHT_PAREN, "Expected ) after function parameters")
 
+        self.consume(Type.LEFT_BRACE, "Expected { before function body")
+
+        body = self.block()
+
+        return ast.FunctionDeclaration(identifier, parameters, body)
+
+    def parameters(self):
         parameters = []
 
         if not self.matches(Type.RIGHT_PAREN):
@@ -124,12 +133,7 @@ class Parser:
                     self.consume(Type.IDENTIFIER, "Expected argument after ,")
                 )
 
-        self.consume(Type.RIGHT_PAREN, "Expected ) after function name")
-        self.consume(Type.LEFT_BRACE, "Expected { before function body")
-
-        body = self.block()
-
-        return ast.FunctionDeclaration(identifier, parameters, body)
+        return parameters
 
     def statement(self):
         if self.match_any(Type.WHILE):
