@@ -12,7 +12,7 @@ from lib.scanner import Scanner
 from lib.interpreter import Interpreter
 from lib.error import RuntimeError, CompileError, ParseError, ScanError
 from lib.stringify import stringify
-from lib.dot_printer import to_dot
+from lib.dot_printer import to_dot, show_ast
 
 def main():
     parser = argparse.ArgumentParser(description="Welcome to Python LOX")
@@ -58,7 +58,7 @@ def run(code, print_ast=None, print_tokens=False):
 
     if print_ast:
         if print_ast == "img":
-            ast.show()
+            show_ast(ast)
         elif print_ast == "raw":
             print(ast)
         elif print_ast == "dot":

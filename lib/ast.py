@@ -2,11 +2,6 @@ import black
 
 
 class AST:
-    def show(self):
-        from lib.dot_printer import show_ast
-
-        show_ast(self)
-
     def __repr__(self):
         ast = "%s(%s)" % (self.__class__.__name__, vars(self),)
 
