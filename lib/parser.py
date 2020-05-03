@@ -117,12 +117,12 @@ class Parser:
 
         return ast.FunctionDeclaration(identifier, parameters, body)
 
-    def parameters(self):
+    def parameters(self, end_mark=Type.RIGHT_PAREN):
         parameters = []
 
-        if not self.matches(Type.RIGHT_PAREN):
+        if not self.matches(end_mark):
             parameters.append(
-                self.consume(Type.IDENTIFIER, "Expected argument after (")
+                self.consume(Type.IDENTIFIER, "Expected argument before %s" % end_mark)
             )
 
             while self.match_any(Type.COMMA):
@@ -249,7 +249,33 @@ class Parser:
         return ast.Block(statements)
 
     def expression(self):
+        if self.match_any(Type.FUN):
+            return self.function_expression()
+
+        if self.match_any(Type.BACKSLASH):
+            return self.lambda_expression()
+
         return self.assignment()
+
+    def function_expression(self):
+        self.consume(Type.LEFT_PAREN, "Expected ( after function name")
+        parameters = self.parameters()
+        self.consume(Type.RIGHT_PAREN, "Expected ) after function name")
+
+        self.consume(Type.LEFT_BRACE, "Expected { before function body")
+
+        body = self.block()
+
+        return ast.FunctionExpression(parameters, body)
+
+    def lambda_expression(self):
+        parameters = self.parameters(end_mark=Type.ARROW)
+
+        arrow = self.consume(Type.ARROW, "Expected arrow after lambda parameters")
+
+        expr = self.expression()
+
+        return ast.LambdaExpression(parameters, arrow, expr)
 
     def assignment(self):
         left = self.ternary()

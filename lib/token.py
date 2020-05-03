@@ -30,6 +30,7 @@ class Type(Enum):
     STAR = auto()
     COLON = auto()
     QUESTION_MARK = auto()
+    BACKSLASH = auto()
 
     # One or two character token
     BANG = auto()
@@ -40,6 +41,7 @@ class Type(Enum):
     GREATER_EQUAL = auto()
     LESS = auto()
     LESS_EQUAL = auto()
+    ARROW = auto()
 
     IDENTIFIER = auto()
     STRING = auto()

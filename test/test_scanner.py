@@ -33,8 +33,9 @@ class ScannerTest(unittest.TestCase):
                 Token(Type.GREATER, ">", None, 1),
                 Token(Type.QUESTION_MARK, "?", None, 1),
                 Token(Type.COLON, ":", None, 1),
+                Token(Type.BACKSLASH, "\\", None, 1),
             ],
-            scan("( ) { } , . - + ; * / ! = < > ? :"),
+            scan("( ) { } , . - + ; * / ! = < > ? : \\"),
         )
 
     def test_it_parses_double_char_tokens(self):

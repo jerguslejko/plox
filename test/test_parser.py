@@ -706,6 +706,83 @@ class ParserTest(TestCase):
             "return;",
         )
 
+    def test_anonymous_function_expression(self):
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.VariableDeclaration(
+                        Token(Type.IDENTIFIER, "f", "f", 1),
+                        ast.FunctionExpression(
+                            [Token(Type.IDENTIFIER, "x", "x", 1)],
+                            ast.Block(
+                                [
+                                    ast.ReturnStatement(
+                                        ast.VariableExpression(
+                                            Token(Type.IDENTIFIER, "x", "x", 1)
+                                        ),
+                                        Token(Type.RETURN, "return", None, 1),
+                                    )
+                                ]
+                            ),
+                        ),
+                    )
+                ]
+            ),
+            "var f = fun (x) { return x; };",
+        )
+
+    def test_lambda_expressions(self):
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.VariableDeclaration(
+                        Token(Type.IDENTIFIER, "f", "f", 1),
+                        ast.LambdaExpression(
+                            [],
+                            Token(Type.ARROW, "->", None, 1),
+                            ast.VariableExpression(Token(Type.IDENTIFIER, "x", "x", 1)),
+                        ),
+                    )
+                ]
+            ),
+            "var f = \\ -> x;",
+        )
+
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.VariableDeclaration(
+                        Token(Type.IDENTIFIER, "f", "f", 1),
+                        ast.LambdaExpression(
+                            [Token(Type.IDENTIFIER, "x", "x", 1)],
+                            Token(Type.ARROW, "->", None, 1),
+                            ast.VariableExpression(Token(Type.IDENTIFIER, "x", "x", 1)),
+                        ),
+                    )
+                ]
+            ),
+            "var f = \\x -> x;",
+        )
+
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.VariableDeclaration(
+                        Token(Type.IDENTIFIER, "f", "f", 1),
+                        ast.LambdaExpression(
+                            [
+                                Token(Type.IDENTIFIER, "x", "x", 1),
+                                Token(Type.IDENTIFIER, "y", "y", 1),
+                            ],
+                            Token(Type.ARROW, "->", None, 1),
+                            ast.VariableExpression(Token(Type.IDENTIFIER, "x", "x", 1)),
+                        ),
+                    )
+                ]
+            ),
+            "var f = \\x, y -> x;",
+        )
+
     # helpers
 
     def assertParseTree(self, tree, code):

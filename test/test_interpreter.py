@@ -278,6 +278,29 @@ var step = factory();
         self.assertEqual(2, interpreter.evaluate(Parser.parse_expr("step()")))
         self.assertEqual(3, interpreter.evaluate(Parser.parse_expr("step()")))
 
+    def test_anonyous_functions(self):
+        interpreter = Interpreter.from_code(
+            """
+fun twice(f) {
+    return fun (x) { return f(f(x)); };
+}
+
+var two_sucks = twice(fun (x) { return x + 1; });
+"""
+        )
+
+        self.assertEqual(3, interpreter.evaluate(Parser.parse_expr("two_sucks(1)")))
+
+    def test_lambda_expressions(self):
+        interpreter = Interpreter.from_code(
+            """
+var twice = \\f -> \\x -> f(f(x));
+var two_sucks = twice(\\x -> x + 1);
+"""
+        )
+
+        self.assertEqual(3, interpreter.evaluate(Parser.parse_expr("two_sucks(1)")))
+
 
 def evaluate_expr(code):
     interpreter = Interpreter.from_code(f"{code};")

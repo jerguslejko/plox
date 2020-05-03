@@ -37,8 +37,6 @@ class Scanner:
             self.add_token(Type.DOT)
         elif c == "+":
             self.add_token(Type.PLUS)
-        elif c == "-":
-            self.add_token(Type.MINUS)
         elif c == ";":
             self.add_token(Type.SEMICOLON)
         elif c == "*":
@@ -49,6 +47,8 @@ class Scanner:
             self.add_token(Type.QUESTION_MARK)
         elif c == ":":
             self.add_token(Type.COLON)
+        elif c == "\\":
+            self.add_token(Type.BACKSLASH)
         elif c == "!":
             self.add_token(Type.BANG_EQUAL if self.match("=") else Type.BANG)
         elif c == "=":
@@ -57,6 +57,10 @@ class Scanner:
             self.add_token(Type.LESS_EQUAL if self.match("=") else Type.LESS)
         elif c == ">":
             self.add_token(Type.GREATER_EQUAL if self.match("=") else Type.GREATER)
+        elif c == "-":
+            self.add_token(Type.ARROW) if self.match(">") else self.add_token(
+                Type.MINUS
+            )
         elif c == '"':
             self.string('"')
         elif c == "'":

@@ -16,6 +16,8 @@ from lib.ast import (
     BinaryExpression,
     UnaryExpression,
     LiteralExpression,
+    FunctionExpression,
+    LambdaExpression,
     GroupingExpression,
     TernaryExpression,
     VariableExpression,
@@ -79,6 +81,20 @@ def print_expr(expr):
         return [
             '%s [label="VariableExpression(%s)"]' % (id(expr), expr.variable.lexeme),
         ]
+
+    if isinstance(expr, FunctionExpression):
+        return [
+            '%s [label="FunctionExpression(%s)"]'
+            % (id(expr), ", ".join(map(lambda p: p.lexeme, expr.parameters)),),
+            "%s -> %s" % (id(expr), id(expr.body)),
+        ] + print_statement(expr.body)
+
+    if isinstance(expr, LambdaExpression):
+        return [
+            '%s [label="LambdaExpression(%s)"]'
+            % (id(expr), ", ".join(map(lambda p: p.lexeme, expr.parameters)),),
+            "%s -> %s" % (id(expr), id(expr.expression)),
+        ] + print_expr(expr.expression)
 
     if isinstance(expr, AssignmentExpression):
         return [

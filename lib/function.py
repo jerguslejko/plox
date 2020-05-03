@@ -58,3 +58,12 @@ class Function(Callable):
 
     def arity(self):
         return len(self.declaration.parameters)
+
+
+class AnonymousFunction(Function):
+    def __init__(self, declaration, closure):
+        self.declaration = declaration
+        self.closure = closure
+
+    def name(self):
+        return "anonymous"

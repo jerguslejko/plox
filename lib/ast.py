@@ -132,3 +132,16 @@ class CallExpression(Expression):
         self.callee = callee
         self.token = token
         self.arguments = arguments
+
+
+class FunctionExpression(Expression):
+    def __init__(self, parameters, body):
+        self.parameters = parameters
+        self.body = body
+
+
+class LambdaExpression(Expression):
+    def __init__(self, parameters, arrow, expression):
+        self.parameters = parameters
+        self.arrow = arrow
+        self.expression = expression

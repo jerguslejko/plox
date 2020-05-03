@@ -13,19 +13,21 @@ from lib.ast import (
     BinaryExpression,
     UnaryExpression,
     LiteralExpression,
+    LambdaExpression,
     GroupingExpression,
     TernaryExpression,
     VariableExpression,
     AssignmentExpression,
     LogicalExpression,
     CallExpression,
+    FunctionExpression,
 )
 from lib.error import RuntimeError, TypeError
 from lib.environment import Environment
 from lib.scanner import Scanner
 from lib.parser import Parser
 from lib.io import RealPrinter, FakePrinter
-from lib.function import Function, Callable
+from lib.function import Function, AnonymousFunction, Callable
 
 
 class Return(RuntimeError):
@@ -123,6 +125,17 @@ class Interpreter:
     def evaluate(self, expr):
         if isinstance(expr, LiteralExpression):
             return expr.value
+
+        if isinstance(expr, FunctionExpression):
+            return AnonymousFunction(expr, self.env)
+
+        if isinstance(expr, LambdaExpression):
+            return self.evaluate(
+                FunctionExpression(
+                    expr.parameters,
+                    Block([ReturnStatement(expr.expression, expr.arrow)]),
+                )
+            )
 
         if isinstance(expr, GroupingExpression):
             return self.evaluate(expr.expression)
