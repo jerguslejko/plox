@@ -59,16 +59,7 @@ class Interpreter:
             return None
 
         if isinstance(statement, Block):
-            previous_env = self.env
-
-            try:
-                self.env = self.env.child()
-
-                for s in statement.statements:
-                    self.execute(s)
-            finally:
-                self.env = previous_env
-
+            self.execute_block(statement, self.env.child())
             return None
 
         if isinstance(statement, IfStatement):
@@ -96,6 +87,17 @@ class Interpreter:
             "[interpreter] Unsupported statement type [%s]"
             % statement.__class__.__name__
         )
+
+    def execute_block(self, block, env):
+        previous_env = self.env
+
+        try:
+            self.env = env
+
+            for s in block.statements:
+                self.execute(s)
+        finally:
+            self.env = previous_env
 
     def evaluate(self, expr):
         if isinstance(expr, LiteralExpression):
