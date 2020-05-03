@@ -8,19 +8,7 @@ class Callable(ABC):
         pass
 
     @abstractmethod
-    def identifier(self):
-        pass
-
-    @abstractmethod
     def call(self, interpreter, arguments):
-        pass
-
-    @abstractmethod
-    def parameters(self):
-        pass
-
-    @abstractmethod
-    def body(self):
         pass
 
     @abstractmethod
