@@ -4,6 +4,8 @@ from lib.ast import (
     Program,
     Block,
     VariableDeclaration,
+    ReturnStatement,
+    FunctionDeclaration,
     ExpressionStatement,
     PrintStatement,
     IfStatement,
@@ -16,12 +18,19 @@ from lib.ast import (
     VariableExpression,
     AssignmentExpression,
     LogicalExpression,
+    CallExpression,
 )
 from lib.error import RuntimeError, TypeError
 from lib.environment import Environment
 from lib.scanner import Scanner
 from lib.parser import Parser
 from lib.io import RealPrinter, FakePrinter
+from lib.function import Function, Callable
+
+
+class Return(RuntimeError):
+    def __init__(self, value):
+        self.value = value
 
 
 class Interpreter:
@@ -82,6 +91,18 @@ class Interpreter:
                 test = self.evaluate(statement.test)
 
             return None
+
+        if isinstance(statement, FunctionDeclaration):
+            fun = Function(statement)
+
+            self.env.define(fun.name(), fun)
+
+            return None
+
+        if isinstance(statement, ReturnStatement):
+            value = self.evaluate(statement.expression)
+
+            raise Return(value)
 
         raise ValueError(
             "[interpreter] Unsupported statement type [%s]"
@@ -201,6 +222,28 @@ class Interpreter:
                 return right
 
             raise ValueError("unsupported logical operator (%s)" % expr.token.lexeme)
+
+        if isinstance(expr, CallExpression):
+            callee = self.evaluate(expr.callee)
+
+            if not isinstance(callee, Callable):
+                raise RuntimeError(expr.token, "Can only call functions or classes")
+
+            arguments = list(map(self.evaluate, expr.arguments))
+
+            if len(arguments) != callee.arity():
+                raise RuntimeError(
+                    expr.token,
+                    "Expected %s arguments but got %s"
+                    % (callee.arity(), len(arguments)),
+                )
+
+            try:
+                callee.call(self, arguments)
+            except Return as r:
+                return r.value
+
+            return None
 
         raise ValueError(
             "[interpreter] Unsupported expression type [%s]" % expr.__class__.__name__

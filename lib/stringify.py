@@ -17,6 +17,11 @@ def stringify(value):
     if value is False:
         return "false"
 
+    from lib.function import Function
+
+    if isinstance(value, Function):
+        return value.to_str()
+
     raise ValueError("[stringify] cannot stringify value [%s]" % value)
 
 

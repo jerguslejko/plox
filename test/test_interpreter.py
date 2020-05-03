@@ -1,11 +1,13 @@
 import unittest
-from lib.error import TypeError
+from lib.error import TypeError, RuntimeError
 from lib.parser import Parser
 from lib.scanner import Scanner
 from lib.interpreter import Interpreter
 from lib.error import UninitializedVariableError
 from lib.io import FakePrinter
 from lib.token import identifier
+from lib.function import Function
+from lib import ast
 
 
 class InterpreterTest(unittest.TestCase):
@@ -164,6 +166,95 @@ class InterpreterTest(unittest.TestCase):
             "for (var a = 0; a < 3; a = a + 1) { print a; }"
         )
         self.assertEqual(["0", "1", "2"], interpreter.printer.get())
+
+    def test_function_declaration(self):
+        interpreter = Interpreter.from_code("fun foo(a) { }")
+
+        foo = interpreter.globals.get(identifier("foo"))
+
+        self.assertTrue(isinstance(foo, Function))
+        self.assertEqual(identifier("foo"), foo.name())
+        self.assertEqual([identifier("a")], foo.parameters())
+        self.assertEqual(ast.Block([]), foo.body())
+
+    def test_function_call(self):
+        interpreter = Interpreter.from_code(
+            """
+fun foo(a) {
+    print a;
+}
+
+foo(40 + 2);
+"""
+        )
+
+        self.assertEqual(["42"], interpreter.printer.get())
+
+    def test_calling_non_callable(self):
+        try:
+            interpreter = Interpreter.from_code("var a = 1; a();")
+        except RuntimeError as e:
+            self.assertEqual("Can only call functions or classes", e.message)
+        else:
+            self.fail("Expected exception")
+
+    def test_calling_function_with_wrong_number_of_arguments(self):
+        try:
+            Interpreter.from_code("fun foo(a) {} foo();")
+        except RuntimeError as e:
+            self.assertEqual("Expected 1 arguments but got 0", e.message)
+        else:
+            self.fail("Expected exception")
+
+        try:
+            Interpreter.from_code("fun foo(a) {} foo(1, 2);")
+        except RuntimeError as e:
+            self.assertEqual("Expected 1 arguments but got 2", e.message)
+        else:
+            self.fail("Expected exception")
+
+    def test_return_statement(self):
+        interpreter = Interpreter.from_code(
+            """
+fun foo(x) {
+    return 40 + x;
+}
+
+print foo(2);
+"""
+        )
+
+        self.assertEqual(["42"], interpreter.printer.get())
+
+    def test_nested_functions(self):
+        interpreter = Interpreter.from_code(
+            """
+fun foo() {
+    fun bar(y) {
+        return 40 + y;
+    }
+
+    return bar;
+}
+"""
+        )
+
+        self.assertEqual(43, interpreter.evaluate(Parser.parse_expr("foo()(3)")))
+
+    def test_recursion(self):
+        interpreter = Interpreter.from_code(
+            """
+fun foo(n) {
+    if (n == 0) {
+        return n;
+    }
+
+    return n + foo(n - 1);
+}
+"""
+        )
+
+        self.assertEqual(6, interpreter.evaluate(Parser.parse_expr("foo(3)")))
 
 
 def evaluate_expr(code):

@@ -67,6 +67,12 @@ class WhileStatement(Statement):
         self.body = body
 
 
+class ReturnStatement(Statement):
+    def __init__(self, expression, token):
+        self.expression = expression
+        self.token = token
+
+
 class Expression(AST):
     pass
 

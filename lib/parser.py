@@ -147,6 +147,9 @@ class Parser:
         if self.match_any(Type.LEFT_BRACE):
             return self.block()
 
+        if self.match_any(Type.RETURN):
+            return self._return()
+
         return self.expression_statement()
 
     def block(self):
@@ -158,6 +161,17 @@ class Parser:
         self.consume(Type.RIGHT_BRACE, "Expected closing brace")
 
         return ast.Block(statements)
+
+    def _return(self):
+        token = self.previous()
+
+        if not self.matches(Type.SEMICOLON):
+            expr = self.expression()
+        else:
+            expr = ast.LiteralExpression(None)
+
+        self.consume(Type.SEMICOLON, "Expected ; after return statement")
+        return ast.ReturnStatement(expr, token)
 
     def expression_statement(self):
         expr = self.expression()

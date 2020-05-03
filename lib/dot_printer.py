@@ -7,6 +7,8 @@ from lib.token import Token, Type
 from lib.ast import (
     Block,
     ExpressionStatement,
+    ReturnStatement,
+    IfStatement,
     VariableDeclaration,
     FunctionDeclaration,
     PrintStatement,
@@ -118,6 +120,29 @@ def print_statement(statement):
             "%s -> %s" % (id(statement), id(statement.expression)),
         ] + print_expr(statement.expression)
 
+    if isinstance(statement, IfStatement):
+        return (
+            [
+                '%s [label="IfStatement"]' % id(statement),
+                "%s -> %s" % (id(statement), id(statement.test)),
+                "%s -> %s" % (id(statement), id(statement.then)),
+                (
+                    "%s -> %s" % (id(statement), id(statement.neht))
+                    if statement.neht
+                    else None
+                ),
+            ]
+            + print_expr(statement.test)
+            + print_statement(statement.then)
+            + (print_statement(statement.neht) if statement.neht else [])
+        )
+
+    if isinstance(statement, ReturnStatement):
+        return [
+            '%s [label="ReturnStatement"]' % id(statement),
+            "%s -> %s" % (id(statement), id(statement.expression)),
+        ] + print_expr(statement.expression)
+
     if isinstance(statement, PrintStatement):
         return reduce(
             lambda xs, expr: xs + print_expr(expr),
@@ -153,7 +178,13 @@ def print_statement(statement):
                     ", ".join(map(lambda s: str(id(s)), statement.statements)),
                 ),
             ],
-        )
+        ) + [
+            "subgraph cluster_%s_block { %s }"
+            % (
+                id(statement),
+                "; ".join(map(lambda e: str(id(e)), statement.statements)),
+            ),
+        ]
 
     if isinstance(statement, WhileStatement):
         return (
@@ -193,7 +224,7 @@ def print_program(ast):
 
 
 def to_dot(ast):
-    return "digraph { %s }" % "; ".join(print_program(ast))
+    return "digraph { %s }" % "; ".join(filter(lambda x: x, print_program(ast)))
 
 
 def show_ast(ast):

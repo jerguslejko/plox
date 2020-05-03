@@ -682,6 +682,30 @@ class ParserTest(TestCase):
         else:
             self.fail("Expected exception")
 
+    def test_return_statement(self):
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ReturnStatement(
+                        ast.LiteralExpression(42), Token(Type.RETURN, "return", None, 1)
+                    )
+                ]
+            ),
+            "return 42;",
+        )
+
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ReturnStatement(
+                        ast.LiteralExpression(None),
+                        Token(Type.RETURN, "return", None, 1),
+                    )
+                ]
+            ),
+            "return;",
+        )
+
     # helpers
 
     def assertParseTree(self, tree, code):
