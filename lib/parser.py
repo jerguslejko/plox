@@ -1,6 +1,6 @@
 import lib.ast as ast
 from lib.token import Type
-from lib.error import ParseError
+from lib.error import ParseError, ParseErrors
 from lib.scanner import Scanner
 from lib.ast import ExpressionStatement
 
@@ -12,7 +12,12 @@ class Parser:
         self.current = 0
 
     def parse(self):
-        return (self.program(), self.errors)
+        ast = self.program()
+
+        if self.errors:
+            raise ParseErrors(self.errors)
+
+        return ast
 
     def advance(self):
         self.current += 1
@@ -425,15 +430,8 @@ class Parser:
 
     @staticmethod
     def parse_code(code):
-        (tokens, scan_errors) = Scanner(code).scan()
-        for error in scan_errors:
-            raise error
-
-        (program, parse_errors) = Parser(tokens).parse()
-        for error in parse_errors:
-            raise error
-
-        return program
+        tokens = Scanner(code).scan()
+        return Parser(tokens).parse()
 
     @staticmethod
     def parse_expr(code):

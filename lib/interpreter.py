@@ -252,14 +252,8 @@ class Interpreter:
 
     @staticmethod
     def from_code(code):
-        (tokens, scan_errors) = Scanner(code).scan()
-        for error in scan_errors:
-            raise error
-
-        (ast, parse_errors) = Parser(tokens).parse()
-        for error in parse_errors:
-            raise error
-
+        tokens = Scanner(code).scan()
+        ast = Parser(tokens).parse()
         interpreter = Interpreter(ast)
 
         interpreter.interpret()

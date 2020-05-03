@@ -1,7 +1,7 @@
 from test import TestCase
 from lib.scanner import Scanner
 from lib.token import Token, Type
-from lib.error import ScanError
+from lib.error import ScanError, ScanErrors
 
 
 class ScannerTest(TestCase):
@@ -9,7 +9,7 @@ class ScannerTest(TestCase):
         self.maxDiff = None
 
     def test_it_includes_eof(self):
-        (tokens, _) = Scanner("").scan()
+        tokens = Scanner("").scan()
 
         self.assertEqual([Token(Type.EOF, "", None, 1),], tokens)
 
@@ -104,17 +104,21 @@ class ScannerTest(TestCase):
         )
 
     def test_it_reports_unterminated_string(self):
-        (tokens, errors) = Scanner('"hello').scan()
-
-        self.assertEqual([ScanError(1, "Unterminated string")], errors)
-        self.assertEqual([], tokens[:-1])
+        try:
+            Scanner("'hello").scan()
+        except ScanErrors as e:
+            self.assertEqual([ScanError(1, "Unterminated string")], e.errors)
+        else:
+            self.fail("Expected exception")
 
     def test_it_reports_unknown_char(self):
-        (tokens, errors) = Scanner("@").scan()
-
-        self.assertEqual([], tokens[:-1])
-        self.assertEqual([ScanError(1, "Unrecognized character [@]")], errors)
+        try:
+            Scanner("@").scan()
+        except ScanErrors as e:
+            self.assertEqual([ScanError(1, "Unrecognized character [@]")], e.errors)
+        else:
+            self.fail("Expected exception")
 
 
 def scan(code):
-    return Scanner(code).scan()[0][:-1]
+    return Scanner(code).scan()[:-1]

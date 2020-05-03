@@ -1,5 +1,5 @@
 from lib.token import Token, Type
-from lib.error import ScanError
+from lib.error import ScanError, ScanErrors
 
 
 class Scanner:
@@ -18,7 +18,10 @@ class Scanner:
 
         self.tokens.append(Token(Type.EOF, "", None, self.line))
 
-        return (self.tokens, self.errors)
+        if self.errors:
+            raise ScanErrors(self.errors)
+
+        return self.tokens
 
     def scan_single(self):
         c = self.advance()

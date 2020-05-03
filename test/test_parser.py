@@ -3,7 +3,7 @@ import lib.ast as ast
 from lib.parser import Parser
 from lib.scanner import Scanner
 from lib.token import Token, Type
-from lib.error import ParseError
+from lib.error import ParseError, ParseErrors
 
 
 class ParserTest(TestCase):
@@ -198,20 +198,14 @@ class ParserTest(TestCase):
         )
 
     def test_synchronization(self):
-        (tokens, _) = Scanner("( 1; 1;").scan()
-        (tree, errors) = Parser(tokens).parse()
+        tokens = Scanner("( 1; 1;").scan()
 
-        self.assertEqual(
-            ast.Program([None, ast.ExpressionStatement(ast.LiteralExpression(1))]), tree
-        )
-        self.assertEqual(
-            [
-                ParseError(
-                    Token(Type.SEMICOLON, ";", None, 1), "Expected ')' after expression"
-                )
-            ],
-            errors,
-        )
+        try:
+            tree = Parser(tokens).parse()
+        except ParseErrors as e:
+            self.assertEqual(["Expected ')' after expression"], e.messages())
+        else:
+            self.fail("Expected exception")
 
     def test_it_parses_statements(self):
         self.assertParseTree(
@@ -299,7 +293,7 @@ class ParserTest(TestCase):
     def test_it_fails_when_assignment_target_is_not_variable(self):
         try:
             Parser.parse_code("var a; var b; a + b = 1")
-        except ParseError as e:
+        except ParseErrors as e:
             pass
         else:
             self.fail("Expected exception")
@@ -628,8 +622,8 @@ class ParserTest(TestCase):
     def test_maximum_argument_count(self):
         try:
             Parser.parse_code("f(%s);" % ", ".join(["1"] * 256))
-        except ParseError as e:
-            self.assertEqual("Maximum argument count of 255 exceeded", e.message)
+        except ParseErrors as e:
+            self.assertEqual(["Maximum argument count of 255 exceeded"], e.messages())
         else:
             self.fail("Expected exception")
 
@@ -677,8 +671,8 @@ class ParserTest(TestCase):
     def test_maximum_parameter_count(self):
         try:
             Parser.parse_code("fun f(%s) {}" % ", ".join(["x"] * 256))
-        except ParseError as e:
-            self.assertEqual("Maximum parameter count of 255 exceeded", e.message)
+        except ParseErrors as e:
+            self.assertEqual(["Maximum parameter count of 255 exceeded"], e.messages())
         else:
             self.fail("Expected exception")
 

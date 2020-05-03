@@ -10,7 +10,7 @@ from os import path
 from lib.parser import Parser
 from lib.scanner import Scanner
 from lib.interpreter import Interpreter
-from lib.error import RuntimeError, CompileError, ParseError, ScanError
+from lib.error import RuntimeError, CompileError, ParseErrors, ScanErrors
 from lib.stringify import stringify
 from lib.dot_printer import ast_to_dot, ast_to_image
 
@@ -40,20 +40,24 @@ def main():
 
 
 def run(code, print_ast=None, print_tokens=False):
-    (tokens, scan_errors) = Scanner(code).scan()
-    for error in scan_errors:
-        print(error)
-    if len(scan_errors) > 0:
+    try:
+        tokens = Scanner(code).scan()
+    except ScanErrors as bag:
+        for error in bag.errors:
+            print(error)
+
         return False
 
     if print_tokens:
         pprint(tokens)
         return True
 
-    (ast, parse_errors) = Parser(tokens).parse()
-    for error in parse_errors:
-        print(error)
-    if len(parse_errors) > 0:
+    try:
+        ast = Parser(tokens).parse()
+    except ParseErrors as bag:
+        for error in bag.errors:
+            print(error)
+
         return False
 
     if print_ast:
