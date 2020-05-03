@@ -1,27 +1,6 @@
+from lib import ast
 from lib.token import Type, identifier
 from lib.stringify import stringify
-from lib.ast import (
-    Program,
-    Block,
-    VariableDeclaration,
-    ReturnStatement,
-    FunctionDeclaration,
-    ExpressionStatement,
-    PrintStatement,
-    IfStatement,
-    WhileStatement,
-    BinaryExpression,
-    UnaryExpression,
-    LiteralExpression,
-    LambdaExpression,
-    GroupingExpression,
-    TernaryExpression,
-    VariableExpression,
-    AssignmentExpression,
-    LogicalExpression,
-    CallExpression,
-    FunctionExpression,
-)
 from lib.error import RuntimeError, TypeError
 from lib.environment import Environment
 from lib.scanner import Scanner
@@ -54,17 +33,17 @@ class Interpreter:
             self.execute(statement)
 
     def execute(self, statement):
-        if isinstance(statement, ExpressionStatement):
+        if isinstance(statement, ast.ExpressionStatement):
             self.evaluate(statement.expression)
             return None
 
-        if isinstance(statement, PrintStatement):
+        if isinstance(statement, ast.PrintStatement):
             self.printer.print(
                 *[stringify(self.evaluate(e)) for e in statement.expressions]
             )
             return None
 
-        if isinstance(statement, VariableDeclaration):
+        if isinstance(statement, ast.VariableDeclaration):
             if statement.initializer != None:
                 self.env.define(
                     statement.identifier, self.evaluate(statement.initializer)
@@ -74,11 +53,11 @@ class Interpreter:
 
             return None
 
-        if isinstance(statement, Block):
+        if isinstance(statement, ast.Block):
             self.execute_block(statement, self.env.child())
             return None
 
-        if isinstance(statement, IfStatement):
+        if isinstance(statement, ast.IfStatement):
             test = self.evaluate(statement.test)
             Assert.operand_type(test, [bool], None)
 
@@ -90,7 +69,7 @@ class Interpreter:
 
             return None
 
-        if isinstance(statement, WhileStatement):
+        if isinstance(statement, ast.WhileStatement):
             test = self.evaluate(statement.test)
             Assert.operand_type(test, [bool], statement.token)
             while test:
@@ -99,14 +78,14 @@ class Interpreter:
 
             return None
 
-        if isinstance(statement, FunctionDeclaration):
+        if isinstance(statement, ast.FunctionDeclaration):
             fun = Function(statement, self.env)
 
             self.env.define(fun.identifier(), fun)
 
             return None
 
-        if isinstance(statement, ReturnStatement):
+        if isinstance(statement, ast.ReturnStatement):
             value = self.evaluate(statement.expression)
 
             self.raise_return(value)
@@ -129,24 +108,24 @@ class Interpreter:
             self.env = previous_env
 
     def evaluate(self, expr):
-        if isinstance(expr, LiteralExpression):
+        if isinstance(expr, ast.LiteralExpression):
             return expr.value
 
-        if isinstance(expr, FunctionExpression):
+        if isinstance(expr, ast.FunctionExpression):
             return AnonymousFunction(expr, self.env)
 
-        if isinstance(expr, LambdaExpression):
+        if isinstance(expr, ast.LambdaExpression):
             return self.evaluate(
-                FunctionExpression(
+                ast.FunctionExpression(
                     expr.parameters,
-                    Block([ReturnStatement(expr.expression, expr.arrow)]),
+                    ast.Block([ast.ReturnStatement(expr.expression, expr.arrow)]),
                 )
             )
 
-        if isinstance(expr, GroupingExpression):
+        if isinstance(expr, ast.GroupingExpression):
             return self.evaluate(expr.expression)
 
-        if isinstance(expr, UnaryExpression):
+        if isinstance(expr, ast.UnaryExpression):
             operator, value = expr.operator, self.evaluate(expr.right)
 
             if expr.operator.type == Type.MINUS:
@@ -161,7 +140,7 @@ class Interpreter:
                     % expr.operator.lexeme
                 )
 
-        if isinstance(expr, BinaryExpression):
+        if isinstance(expr, ast.BinaryExpression):
             left, right = self.evaluate(expr.left), self.evaluate(expr.right)
 
             if expr.operator.type == Type.PLUS:
@@ -201,7 +180,7 @@ class Interpreter:
                     % expr.operator.lexeme
                 )
 
-        if isinstance(expr, TernaryExpression):
+        if isinstance(expr, ast.TernaryExpression):
             test = self.evaluate(expr.test)
             Assert.operand_type(test, [bool], expr.operator)
 
@@ -210,15 +189,15 @@ class Interpreter:
             else:
                 return self.evaluate(expr.neht)
 
-        if isinstance(expr, VariableExpression):
+        if isinstance(expr, ast.VariableExpression):
             return self.env.get(expr.variable)
 
-        if isinstance(expr, AssignmentExpression):
+        if isinstance(expr, ast.AssignmentExpression):
             value = self.evaluate(expr.right)
             self.env.assign(expr.left, value)
             return value
 
-        if isinstance(expr, LogicalExpression):
+        if isinstance(expr, ast.LogicalExpression):
             if expr.token.type == Type.OR:
                 left = self.evaluate(expr.left)
                 Assert.operand_type(left, [bool], expr.token)
@@ -242,7 +221,7 @@ class Interpreter:
 
             raise ValueError("unsupported logical operator (%s)" % expr.token.lexeme)
 
-        if isinstance(expr, CallExpression):
+        if isinstance(expr, ast.CallExpression):
             callee = self.evaluate(expr.callee)
 
             if not isinstance(callee, Callable):
