@@ -32,6 +32,8 @@ class Interpreter:
         for statement in self.ast.statements:
             self.execute(statement)
 
+        return self
+
     def execute(self, statement):
         if isinstance(statement, ast.ExpressionStatement):
             self.evaluate(statement.expression)
@@ -254,11 +256,7 @@ class Interpreter:
     def from_code(code):
         tokens = Scanner(code).scan()
         ast = Parser(tokens).parse()
-        interpreter = Interpreter(ast)
-
-        interpreter.interpret()
-
-        return interpreter
+        return Interpreter(ast).interpret()
 
     @staticmethod
     def evaluate_expr(code):
