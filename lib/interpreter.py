@@ -93,7 +93,7 @@ class Interpreter:
             return None
 
         if isinstance(statement, FunctionDeclaration):
-            fun = Function(statement)
+            fun = Function(statement, self.env)
 
             self.env.define(fun.name(), fun)
 

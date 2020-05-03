@@ -256,6 +256,28 @@ fun foo(n) {
 
         self.assertEqual(6, interpreter.evaluate(Parser.parse_expr("foo(3)")))
 
+    def test_closure(self):
+        interpreter = Interpreter.from_code(
+            """
+fun factory() {
+    var i = 0;
+
+    fun step() {
+        i = i + 1;
+        return i;
+    }
+
+    return step;
+}
+
+var step = factory();
+"""
+        )
+
+        self.assertEqual(1, interpreter.evaluate(Parser.parse_expr("step()")))
+        self.assertEqual(2, interpreter.evaluate(Parser.parse_expr("step()")))
+        self.assertEqual(3, interpreter.evaluate(Parser.parse_expr("step()")))
+
 
 def evaluate_expr(code):
     interpreter = Interpreter.from_code(f"{code};")

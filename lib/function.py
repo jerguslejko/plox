@@ -29,8 +29,9 @@ class Callable(ABC):
 
 
 class Function(Callable):
-    def __init__(self, declaration):
+    def __init__(self, declaration, closure):
         self.declaration = declaration
+        self.closure = closure
 
     def name(self):
         return self.declaration.name
@@ -42,7 +43,7 @@ class Function(Callable):
         return self.declaration.body
 
     def call(self, interpreter, arguments):
-        env = Environment(interpreter.globals)
+        env = Environment(self.closure)
 
         for (i, parameter) in enumerate(self.declaration.parameters):
             env.define(parameter, arguments[i])
