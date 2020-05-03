@@ -1,6 +1,6 @@
 class RealPrinter:
-    def print(self, value):
-        print(value)
+    def print(self, *values):
+        print(*values)
 
     def get(self):
         raise ValueError("[real printer] cannot get output")
