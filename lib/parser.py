@@ -105,6 +105,9 @@ class Parser:
         return ast.VariableDeclaration(identifier, initializer)
 
     def function_declaration(self):
+        if self.matches(Type.LEFT_PAREN):
+            return ast.ExpressionStatement(self.function_expression())
+
         identifier = self.consume(Type.IDENTIFIER, "Expected function name")
 
         self.consume(Type.LEFT_PAREN, "Expected ( after function name")

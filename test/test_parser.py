@@ -783,6 +783,14 @@ class ParserTest(TestCase):
             "var f = \\x, y -> x;",
         )
 
+    def test_wild_function_expression(self):
+        self.assertParseTree(
+            ast.Program(
+                [ast.ExpressionStatement(ast.FunctionExpression([], ast.Block([])))]
+            ),
+            "fun () {}",
+        )
+
     # helpers
 
     def assertParseTree(self, tree, code):
