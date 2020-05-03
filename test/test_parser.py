@@ -1,4 +1,4 @@
-from test.TestCase import TestCase
+from test import TestCase
 import lib.ast as ast
 from lib.parser import Parser
 from lib.scanner import Scanner

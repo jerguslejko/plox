@@ -1,4 +1,4 @@
-import unittest
+from test import TestCase
 from lib.token import Token, Type, identifier
 from lib.environment import Environment
 from lib.error import (
@@ -8,7 +8,7 @@ from lib.error import (
 )
 
 
-class EnvironmentTest(unittest.TestCase):
+class EnvironmentTest(TestCase):
     def test_it_stores_variables(self):
         env = Environment()
 

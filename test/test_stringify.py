@@ -1,8 +1,8 @@
-import unittest
+from test import TestCase
 from lib.stringify import stringify, stringify_type, stringify_types
 
 
-class StringifyTest(unittest.TestCase):
+class StringifyTest(TestCase):
     def test_it_stringifies_values(self):
         self.assertEqual("1", stringify(1))
         self.assertEqual("1.3", stringify(1.3))

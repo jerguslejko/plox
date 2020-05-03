@@ -1,10 +1,10 @@
-import unittest
+from test import TestCase
 from lib.scanner import Scanner
 from lib.token import Token, Type
 from lib.error import ScanError
 
 
-class ScannerTest(unittest.TestCase):
+class ScannerTest(TestCase):
     def setUp(self):
         self.maxDiff = None
 

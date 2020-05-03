@@ -1,4 +1,4 @@
-import unittest
+from test import TestCase
 from lib.error import TypeError, RuntimeError
 from lib.parser import Parser
 from lib.scanner import Scanner
@@ -10,7 +10,7 @@ from lib.function import Function
 from lib import ast
 
 
-class InterpreterTest(unittest.TestCase):
+class InterpreterTest(TestCase):
     def setUp(self):
         Interpreter.printer = FakePrinter
 
