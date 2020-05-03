@@ -1,0 +1,41 @@
+fun t() {
+    print ">> TRUE SIDE EFFECT <<";
+
+    return true;
+}
+
+fun f() {
+    print ">> FALSE SIDE EFFECT <<";
+
+    return false;
+}
+
+fun zero() {
+    print ">> ZERO SIDE EFFECT <<";
+
+    return 0;
+}
+
+fun one() {
+    print ">> ONE SIDE EFFECT <<";
+
+    return 1;
+}
+
+print "and";
+print "true and true =", t() and t();
+print "true and false =", t() and f();
+print "false and true =", f() and t();
+print "false and false =", f() and f();
+
+print "";
+
+print "or";
+print "true or true =", t() or t();
+print "true or false =", t() or f();
+print "false or true =", f() or t();
+print "false or false =", f() or f();
+
+print "ternary";
+print t() ? one() : zero();
+print t() ? one() : zero();

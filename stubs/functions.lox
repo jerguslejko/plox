@@ -1,0 +1,17 @@
+fun succ_v1(n) {
+    return n + 1;
+}
+
+print succ_v1(1);
+
+var succ_v2 = fun (n) {
+    return n + 1;
+};
+
+print succ_v2(1);
+
+var succ_v3 = \n -> n + 1;
+
+print succ_v3(1);
+
+print (\n -> n + 1)(1);

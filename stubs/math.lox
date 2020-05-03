@@ -1,0 +1,4 @@
+var a = -1;
+var b = 9;
+
+print "a + b =", a + b;
