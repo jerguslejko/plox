@@ -1,3 +1,4 @@
+from unittest import skip
 from test import TestCase
 from lib.parser import Parser
 from lib.io import FakePrinter
@@ -84,6 +85,30 @@ fun f() {
         except CompileErrors as e:
             self.assertEqual(
                 ["Variable [a] accessed inside its own initializer"], e.messages()
+            )
+        else:
+            self.fail("Expected exception")
+
+    @skip("resolver does not work for globals")
+    def test_errors_for_global_variables(self):
+        ast = Parser.parse_code(
+            """
+var a = a;
+
+var d = 1;
+var d = 2;
+"""
+        )
+
+        try:
+            Resolver(ast).run()
+        except CompileErrors as e:
+            self.assertEqual(
+                [
+                    "Variable [a] accessed inside its own initializer",
+                    "Variable [d] is already defined",
+                ],
+                e.messages(),
             )
         else:
             self.fail("Expected exception")
