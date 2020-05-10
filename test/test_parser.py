@@ -294,7 +294,7 @@ class ParserTest(TestCase):
         try:
             Parser.parse_code("var a; var b; a + b = 1")
         except ParseErrors as e:
-            pass
+            self.assertEqual(["Invalid assignment target"], e.messages())
         else:
             self.fail("Expected exception")
 
