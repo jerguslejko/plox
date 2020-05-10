@@ -122,3 +122,37 @@ var d = 2;
             )
         else:
             self.fail("Expected exception")
+
+    @skip("resolver does not report unused variables")
+    def test_unused_variables(self):
+        ast = Parser.parse_code("var a = 1;")
+
+        try:
+            Resolver(ast).run()
+        except CompileErrors as e:
+            self.assertEqual(
+                ["Unused variable [a]",], e.messages(),
+            )
+        else:
+            self.fail("Expected exception")
+
+    @skip("resolver does not report dead code")
+    def test_dead_code(self):
+        ast = Parser.parse_code(
+            """
+fun foo() {
+    return 1;
+
+    var a = 1;
+}
+"""
+        )
+
+        try:
+            Resolver(ast).run()
+        except CompileErrors as e:
+            self.assertEqual(
+                ["Dead code",], e.messages(),
+            )
+        else:
+            self.fail("Expected exception")
