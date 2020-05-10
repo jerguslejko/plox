@@ -71,7 +71,7 @@ def run(code, print_ast=None, print_tokens=False):
         return True
 
     try:
-        Interpreter(ast).interpret()
+        Interpreter().interpret(ast)
     except RuntimeError as e:
         print(e)
 
@@ -84,7 +84,7 @@ def read_file(name):
         return file.read()
 
 def run_repl():
-    interpreter = Interpreter([])
+    interpreter = Interpreter()
 
     while True:
         try:
@@ -99,11 +99,7 @@ def run_repl():
                 try:
                     program = Parser.parse_code(code)
 
-                    for statement in program.statements:
-                        try:
-                            interpreter.execute(statement)
-                        except RuntimeError as e:
-                            print(e)
+                    interpreter.execute(program)
                 except CompileError as e:
                     print(e)
 

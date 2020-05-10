@@ -141,7 +141,7 @@ class InterpreterTest(TestCase):
         self.assertEqual([], interpreter.printer.get())
 
     def test_logical_operators(self):
-        interpreter = Interpreter([])
+        interpreter = Interpreter()
 
         self.assertEqual(True, interpreter.evaluate(Parser.parse_expr("true and true")))
         self.assertEqual(
@@ -301,5 +301,6 @@ var two_sucks = twice(\\x -> x + 1);
 
 
 def evaluate_expr(code):
-    interpreter = Interpreter.from_code(f"{code};")
-    return interpreter.evaluate(interpreter.ast.statements[0].expression)
+    interpreter = Interpreter()
+    expression = Parser.parse_expr(code)
+    return interpreter.evaluate(expression)

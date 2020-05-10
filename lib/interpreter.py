@@ -22,19 +22,22 @@ class Return(RuntimeError):
 class Interpreter:
     printer = RealPrinter
 
-    def __init__(self, ast):
-        self.ast = ast
+    def __init__(self):
         self.globals = global_environment()
         self.env = self.globals
         self.printer = Interpreter.printer()
 
-    def interpret(self):
-        for statement in self.ast.statements:
-            self.execute(statement)
+    def interpret(self, ast):
+        self.execute(ast)
 
         return self
 
     def execute(self, node):
+        if isinstance(node, ast.Program):
+            for statement in node.statements:
+                self.execute(statement)
+            return None
+
         if isinstance(node, ast.ExpressionStatement):
             self.evaluate(node.expression)
             return None
@@ -251,7 +254,7 @@ class Interpreter:
     def from_code(code):
         tokens = Scanner(code).scan()
         ast = Parser(tokens).parse()
-        return Interpreter(ast).interpret()
+        return Interpreter().interpret(ast)
 
     @staticmethod
     def evaluate_expr(code):
