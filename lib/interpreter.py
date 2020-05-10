@@ -34,68 +34,63 @@ class Interpreter:
 
         return self
 
-    def execute(self, statement):
-        if isinstance(statement, ast.ExpressionStatement):
-            self.evaluate(statement.expression)
+    def execute(self, node):
+        if isinstance(node, ast.ExpressionStatement):
+            self.evaluate(node.expression)
             return None
 
-        if isinstance(statement, ast.PrintStatement):
-            self.printer.print(
-                *[stringify(self.evaluate(e)) for e in statement.expressions]
-            )
+        if isinstance(node, ast.PrintStatement):
+            self.printer.print(*[stringify(self.evaluate(e)) for e in node.expressions])
             return None
 
-        if isinstance(statement, ast.VariableDeclaration):
-            if statement.initializer != None:
-                self.env.define(
-                    statement.identifier, self.evaluate(statement.initializer)
-                )
+        if isinstance(node, ast.VariableDeclaration):
+            if node.initializer != None:
+                self.env.define(node.identifier, self.evaluate(node.initializer))
             else:
-                self.env.define(statement.identifier)
+                self.env.define(node.identifier)
 
             return None
 
-        if isinstance(statement, ast.Block):
-            self.execute_block(statement, self.env.child())
+        if isinstance(node, ast.Block):
+            self.execute_block(node, self.env.child())
             return None
 
-        if isinstance(statement, ast.IfStatement):
-            test = self.evaluate(statement.test)
+        if isinstance(node, ast.IfStatement):
+            test = self.evaluate(node.test)
             Assert.operand_type(test, [bool], None)
 
             if test:
-                self.execute(statement.then)
+                self.execute(node.then)
             else:
-                if statement.neht is not None:
-                    self.execute(statement.neht)
+                if node.neht is not None:
+                    self.execute(node.neht)
 
             return None
 
-        if isinstance(statement, ast.WhileStatement):
-            test = self.evaluate(statement.test)
-            Assert.operand_type(test, [bool], statement.token)
+        if isinstance(node, ast.WhileStatement):
+            test = self.evaluate(node.test)
+            Assert.operand_type(test, [bool], node.token)
             while test:
-                self.execute(statement.body)
-                test = self.evaluate(statement.test)
+                self.execute(node.body)
+                test = self.evaluate(node.test)
 
             return None
 
-        if isinstance(statement, ast.FunctionDeclaration):
-            fun = Function(statement, self.env)
+        if isinstance(node, ast.FunctionDeclaration):
+            fun = Function(node, self.env)
 
             self.env.define(fun.identifier(), fun)
 
             return None
 
-        if isinstance(statement, ast.ReturnStatement):
-            value = self.evaluate(statement.expression)
+        if isinstance(node, ast.ReturnStatement):
+            value = self.evaluate(node.expression)
 
             self.raise_return(value)
 
             raise Return(value)
         raise ValueError(
-            "[interpreter] Unsupported statement type [%s]"
-            % statement.__class__.__name__
+            "[interpreter] Unsupported node type [%s]" % node.__class__.__name__
         )
 
     def execute_block(self, block, env):
@@ -104,8 +99,8 @@ class Interpreter:
         try:
             self.env = env
 
-            for s in block.statements:
-                self.execute(s)
+            for statement in block.statements:
+                self.execute(statement)
         finally:
             self.env = previous_env
 
