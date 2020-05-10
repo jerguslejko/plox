@@ -276,7 +276,7 @@ var step = factory();
         self.assertEqual(2, interpreter.evaluate(Parser.parse_expr("step()")))
         self.assertEqual(3, interpreter.evaluate(Parser.parse_expr("step()")))
 
-    def test_anonyous_functions(self):
+    def test_anonymous_functions(self):
         interpreter = Interpreter.from_code(
             """
 fun twice(f) {
