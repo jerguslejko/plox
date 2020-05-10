@@ -1,5 +1,5 @@
 from lib.token import Token, Type
-from lib.error import ScanError, ScanErrors
+from lib.error import ScanError, CompileErrors
 
 
 class Scanner:
@@ -19,7 +19,7 @@ class Scanner:
         self.tokens.append(Token(Type.EOF, "", None, self.line))
 
         if self.errors:
-            raise ScanErrors(self.errors)
+            raise CompileErrors(self.errors)
 
         return self.tokens
 

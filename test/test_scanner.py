@@ -1,7 +1,7 @@
 from test import TestCase
 from lib.scanner import Scanner
 from lib.token import Token, Type
-from lib.error import ScanError, ScanErrors
+from lib.error import ScanError, CompileErrors
 
 
 class ScannerTest(TestCase):
@@ -106,7 +106,7 @@ class ScannerTest(TestCase):
     def test_it_reports_unterminated_string(self):
         try:
             Scanner("'hello").scan()
-        except ScanErrors as e:
+        except CompileErrors as e:
             self.assertEqual([ScanError(1, "Unterminated string")], e.errors)
         else:
             self.fail("Expected exception")
@@ -114,7 +114,7 @@ class ScannerTest(TestCase):
     def test_it_reports_unknown_char(self):
         try:
             Scanner("@").scan()
-        except ScanErrors as e:
+        except CompileErrors as e:
             self.assertEqual([ScanError(1, "Unrecognized character [@]")], e.errors)
         else:
             self.fail("Expected exception")

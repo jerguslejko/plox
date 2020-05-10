@@ -17,6 +17,17 @@ class CompileError(BaseException):
     pass
 
 
+class CompileErrors(CompileError):
+    def __init__(self, errors):
+        self.errors = errors
+
+    def messages(self):
+        return list(map(lambda x: x.message, self.errors))
+
+    def __str__(self):
+        return "\n".join(map(str, self.errors))
+
+
 class ScanError(CompileError):
     def __init__(self, line, message):
         self.line = line
@@ -29,14 +40,6 @@ class ScanError(CompileError):
         return self.line == other.line and self.message == other.message
 
 
-class ScanErrors(CompileError):
-    def __init__(self, errors):
-        self.errors = errors
-
-    def messages(self):
-        return list(map(lambda x: x.message, self.errors))
-
-
 class ParseError(CompileError):
     def __init__(self, token, message):
         self.token = token
@@ -47,14 +50,6 @@ class ParseError(CompileError):
 
     def __eq__(self, other):
         return self.token == other.token and self.message == other.message
-
-
-class ParseErrors(CompileError):
-    def __init__(self, errors):
-        self.errors = errors
-
-    def messages(self):
-        return list(map(lambda x: x.message, self.errors))
 
 
 class UndefinedVariableError(RuntimeError):

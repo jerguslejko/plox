@@ -3,7 +3,7 @@ import lib.ast as ast
 from lib.parser import Parser
 from lib.scanner import Scanner
 from lib.token import Token, Type
-from lib.error import ParseError, ParseErrors
+from lib.error import ParseError, CompileErrors
 
 
 class ParserTest(TestCase):
@@ -202,7 +202,7 @@ class ParserTest(TestCase):
 
         try:
             tree = Parser(tokens).parse()
-        except ParseErrors as e:
+        except CompileErrors as e:
             self.assertEqual(["Expected ')' after expression"], e.messages())
         else:
             self.fail("Expected exception")
@@ -293,7 +293,7 @@ class ParserTest(TestCase):
     def test_it_fails_when_assignment_target_is_not_variable(self):
         try:
             Parser.parse_code("var a; var b; a + b = 1")
-        except ParseErrors as e:
+        except CompileErrors as e:
             self.assertEqual(["Invalid assignment target"], e.messages())
         else:
             self.fail("Expected exception")
@@ -622,7 +622,7 @@ class ParserTest(TestCase):
     def test_maximum_argument_count(self):
         try:
             Parser.parse_code("f(%s);" % ", ".join(["1"] * 256))
-        except ParseErrors as e:
+        except CompileErrors as e:
             self.assertEqual(["Maximum argument count of 255 exceeded"], e.messages())
         else:
             self.fail("Expected exception")
@@ -671,7 +671,7 @@ class ParserTest(TestCase):
     def test_maximum_parameter_count(self):
         try:
             Parser.parse_code("fun f(%s) {}" % ", ".join(["x"] * 256))
-        except ParseErrors as e:
+        except CompileErrors as e:
             self.assertEqual(["Maximum parameter count of 255 exceeded"], e.messages())
         else:
             self.fail("Expected exception")

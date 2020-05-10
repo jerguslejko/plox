@@ -1,6 +1,6 @@
 import lib.ast as ast
 from lib.token import Type
-from lib.error import ParseError, ParseErrors
+from lib.error import ParseError, CompileErrors
 from lib.scanner import Scanner
 from lib.ast import ExpressionStatement
 
@@ -15,7 +15,7 @@ class Parser:
         ast = self.program()
 
         if self.errors:
-            raise ParseErrors(self.errors)
+            raise CompileErrors(self.errors)
 
         return ast
 
