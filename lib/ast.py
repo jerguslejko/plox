@@ -2,6 +2,9 @@ import black
 
 
 class AST:
+    def __hash__(self):
+        return id(self)
+
     def __repr__(self):
         ast = "%s(%s)" % (self.__class__.__name__, vars(self),)
 
