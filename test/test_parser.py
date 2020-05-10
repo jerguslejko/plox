@@ -785,6 +785,10 @@ class ParserTest(TestCase):
             "fun () {}",
         )
 
+    def test_is_expr(self):
+        self.assertTrue(Parser.is_expr("1"))
+        self.assertFalse(Parser.is_expr("1;"))
+
     # helpers
 
     def assertParseTree(self, tree, code):

@@ -441,3 +441,12 @@ class Parser:
             raise ParseError(None, "Failed parsing expression")
 
         return statement.expression
+
+    @staticmethod
+    def is_expr(code):
+        try:
+            Parser.parse_expr(code)
+        except:
+            return False
+
+        return True
