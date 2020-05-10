@@ -89,6 +89,16 @@ fun f() {
         else:
             self.fail("Expected exception")
 
+    def test_invalid_returns(self):
+        ast = Parser.parse_code("return 4;")
+
+        try:
+            Resolver(ast).run()
+        except CompileErrors as e:
+            self.assertEqual(["Cannot return from top-level code"], e.messages())
+        else:
+            self.fail("Expected exception")
+
     @skip("resolver does not work for globals")
     def test_errors_for_global_variables(self):
         ast = Parser.parse_code(

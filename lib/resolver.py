@@ -8,6 +8,7 @@ class Resolver:
         self.scopes = []
         self.bindings = {}
         self.errors = []
+        self.current_function = None
 
     def run(self):
         self.resolve(self.ast)
@@ -66,17 +67,25 @@ class Resolver:
     def resolve_function(self, node):
         self.declare(node.name)
         self.define(node.name)
+        self.resolve_anonymous_function(node)
 
+    def resolve_anonymous_function(self, node):
+        enclosing_function = self.current_function
+        self.current_function = "function"
         self.begin_scope()
 
         for parameter in node.parameters:
             self.declare(parameter)
             self.define(parameter)
 
-        for statement in node.body.statements:
-            self.resolve(statement)
+        if isinstance(node, ast.LambdaExpression):
+            self.resolve(node.expression)
+        else:
+            for statement in node.body.statements:
+                self.resolve(statement)
 
         self.end_scope()
+        self.current_function = enclosing_function
 
     def resolve(self, node):
         if isinstance(node, ast.Program):
@@ -112,6 +121,9 @@ class Resolver:
             return
 
         if isinstance(node, ast.ReturnStatement):
+            if self.current_function == None:
+                self.error(node.token, "Cannot return from top-level code")
+
             self.resolve(node.expression)
             return
 
@@ -152,30 +164,11 @@ class Resolver:
             return
 
         if isinstance(node, ast.FunctionExpression):
-            self.begin_scope()
-
-            for parameter in node.parameters:
-                self.declare(parameter)
-                self.define(parameter)
-
-            for statement in node.body.statements:
-                self.resolve(statement)
-
-            self.end_scope()
-
+            self.resolve_anonymous_function(node)
             return
 
         if isinstance(node, ast.LambdaExpression):
-            self.begin_scope()
-
-            for parameter in node.parameters:
-                self.declare(parameter)
-                self.define(parameter)
-
-            self.resolve(node.expression)
-
-            self.end_scope()
-
+            self.resolve_anonymous_function(node)
             return
 
         if isinstance(node, ast.AssignmentExpression):
