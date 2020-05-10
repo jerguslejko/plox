@@ -52,6 +52,18 @@ class ParseError(CompileError):
         return self.token == other.token and self.message == other.message
 
 
+class ResolverError(CompileError):
+    def __init__(self, token, message):
+        self.token = token
+        self.message = message
+
+    def __str__(self):
+        return "resolver error on line %d: %s" % (self.token.line, self.message)
+
+    def __eq__(self, other):
+        return self.token == other.token and self.message == other.message
+
+
 class UndefinedVariableError(RuntimeError):
     def __init__(self, token):
         self.token = token

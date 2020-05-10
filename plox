@@ -9,6 +9,7 @@ from pprint import pprint
 from os import path
 from lib.parser import Parser
 from lib.scanner import Scanner
+from lib.resolver import Resolver
 from lib.interpreter import Interpreter
 from lib.error import RuntimeError, CompileError, CompileErrors
 from lib.stringify import stringify
@@ -62,7 +63,9 @@ def run(code, print_ast=None, print_tokens=False):
 
             return
 
-        Interpreter().interpret(ast)
+        bindings = Resolver(ast).run()
+
+        Interpreter(bindings).interpret(ast)
     except (CompileErrors, RuntimeError) as error:
         print(error)
         return False

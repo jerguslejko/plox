@@ -2,6 +2,7 @@ from lib import ast
 from lib.token import Type, identifier
 from lib.stringify import stringify
 from lib.error import RuntimeError, TypeError
+from lib.resolver import Resolver
 from lib.environment import Environment
 from lib.scanner import Scanner
 from lib.parser import Parser
@@ -22,7 +23,8 @@ class Return(RuntimeError):
 class Interpreter:
     printer = RealPrinter
 
-    def __init__(self):
+    def __init__(self, bindings={}):
+        self.bindings = bindings
         self.globals = global_environment()
         self.env = self.globals
         self.printer = Interpreter.printer()
@@ -31,6 +33,12 @@ class Interpreter:
         self.execute(ast)
 
         return self
+
+    def lookup_variable(self, node, name):
+        if node in self.bindings:
+            return self.env.get_at(self.bindings[node], name)
+        else:
+            return self.globals.get(name)
 
     def execute(self, node):
         if isinstance(node, ast.Program):
@@ -190,7 +198,7 @@ class Interpreter:
                 return self.evaluate(expr.neht)
 
         if isinstance(expr, ast.VariableExpression):
-            return self.env.get(expr.variable)
+            return self.lookup_variable(expr, expr.variable)
 
         if isinstance(expr, ast.AssignmentExpression):
             value = self.evaluate(expr.right)
@@ -254,7 +262,8 @@ class Interpreter:
     def from_code(code):
         tokens = Scanner(code).scan()
         ast = Parser(tokens).parse()
-        return Interpreter().interpret(ast)
+        bindings = Resolver(ast).run()
+        return Interpreter(bindings).interpret(ast)
 
     @staticmethod
     def evaluate_expr(code):
