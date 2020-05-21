@@ -1,23 +1,6 @@
 import lib.interpreter
-from abc import ABC, abstractmethod
+from lib.callable import Callable
 from lib.environment import Environment
-
-
-class Callable(ABC):
-    @abstractmethod
-    def name(self):
-        pass
-
-    @abstractmethod
-    def call(self, interpreter, arguments):
-        pass
-
-    @abstractmethod
-    def arity(self):
-        pass
-
-    def to_str(self):
-        return "<fun %s>" % self.name()
 
 
 class Function(Callable):
