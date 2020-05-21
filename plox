@@ -65,7 +65,7 @@ def run(code, print_ast=None, print_tokens=False):
 
         bindings = Resolver(ast).run()
 
-        Interpreter(bindings).interpret(ast)
+        Interpreter().interpret(ast, bindings)
     except (CompileErrors, RuntimeError) as error:
         print(error)
         return False
@@ -91,7 +91,9 @@ def run_repl():
                 else:
                     node = Parser.parse_code(code)
 
-                interpreter.interpret(node)
+                bindings = Resolver(node).run()
+
+                interpreter.interpret(node, bindings)
             except (CompileErrors, RuntimeError) as error:
                 print(error)
 

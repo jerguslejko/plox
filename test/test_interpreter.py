@@ -2,6 +2,7 @@ from test import TestCase
 from lib.error import TypeError, RuntimeError
 from lib.parser import Parser
 from lib.scanner import Scanner
+from lib.resolver import Resolver
 from lib.interpreter import Interpreter
 from lib.error import UninitializedVariableError
 from lib.io import FakePrinter
@@ -18,6 +19,21 @@ class InterpreterTest(TestCase):
         interpreter = Interpreter.from_code("var x = clock();")
 
         self.assertTrue(isinstance(interpreter.evaluate(Parser.parse_expr("x")), float))
+
+    def test_multiple_interpretations(self):
+        interpreter = Interpreter()
+
+        a_ast = Parser.parse_code("var succ = \\x -> x + 1;")
+        a_bindings = Resolver(a_ast).run()
+
+        interpreter.interpret(a_ast, a_bindings)
+
+        b_ast = Parser.parse_code("print succ(4);")
+        b_bindings = Resolver(a_ast).run()
+
+        interpreter.interpret(b_ast, b_bindings)
+
+        self.assertEqual(["5"], interpreter.printer.get())
 
     def test_it_interprets_literals(self):
         self.assertEqual(1, evaluate_expr("1"))

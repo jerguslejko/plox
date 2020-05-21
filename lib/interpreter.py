@@ -23,13 +23,15 @@ class Return(RuntimeError):
 class Interpreter:
     printer = RealPrinter
 
-    def __init__(self, bindings={}):
-        self.bindings = bindings
+    def __init__(self):
+        self.bindings = {}
         self.globals = global_environment()
         self.env = self.globals
         self.printer = Interpreter.printer()
 
-    def interpret(self, ast):
+    def interpret(self, ast, bindings):
+        self.bindings = {**self.bindings, **bindings}
+
         self.execute(ast)
 
         return self
@@ -263,7 +265,7 @@ class Interpreter:
         tokens = Scanner(code).scan()
         ast = Parser(tokens).parse()
         bindings = Resolver(ast).run()
-        return Interpreter(bindings).interpret(ast)
+        return Interpreter().interpret(ast, bindings)
 
     @staticmethod
     def evaluate_expr(code):

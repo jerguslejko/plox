@@ -29,8 +29,8 @@ var a = "global";
 
         bindings = Resolver(ast).run()
 
-        interpreter = Interpreter(bindings)
-        interpreter.interpret(ast)
+        interpreter = Interpreter()
+        interpreter.interpret(ast, bindings)
 
         self.assertEqual(["global", "global"], interpreter.printer.get())
 
