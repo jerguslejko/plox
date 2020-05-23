@@ -64,14 +64,14 @@ class Resolver:
 
         # otherwise it's global
 
-    def resolve_function(self, node):
+    def resolve_function(self, node, declaration):
         self.declare(node.name)
         self.define(node.name)
-        self.resolve_anonymous_function(node)
+        self.resolve_anonymous_function(node, declaration)
 
-    def resolve_anonymous_function(self, node):
+    def resolve_anonymous_function(self, node, declaration):
         enclosing_function = self.current_function
-        self.current_function = "function"
+        self.current_function = declaration
         self.begin_scope()
 
         for parameter in node.parameters:
@@ -97,7 +97,7 @@ class Resolver:
             return self.resolve_block(node)
 
         if isinstance(node, ast.FunctionDeclaration):
-            return self.resolve_function(node)
+            return self.resolve_function(node, "FUNCTION")
 
         if isinstance(node, ast.VariableDeclaration):
             return self.resolve_variable_declaration(node)
@@ -164,11 +164,11 @@ class Resolver:
             return
 
         if isinstance(node, ast.FunctionExpression):
-            self.resolve_anonymous_function(node)
+            self.resolve_anonymous_function(node, "FUNCTION")
             return
 
         if isinstance(node, ast.LambdaExpression):
-            self.resolve_anonymous_function(node)
+            self.resolve_anonymous_function(node, "FUNCTION")
             return
 
         if isinstance(node, ast.AssignmentExpression):
