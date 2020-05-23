@@ -290,7 +290,7 @@ class Parser:
 
         if self.match_any(Type.EQUAL):
             token = self.previous()
-            right = self.assignment()
+            right = self.expression()
 
             if isinstance(left, ast.VariableExpression):
                 return ast.AssignmentExpression(left.variable, token, right)
