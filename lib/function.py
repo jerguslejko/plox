@@ -1,3 +1,4 @@
+import lib.interpreter
 from abc import ABC, abstractmethod
 from lib.environment import Environment
 
@@ -42,7 +43,12 @@ class Function(Callable):
         for (i, parameter) in enumerate(self.declaration.parameters):
             env.define(parameter, arguments[i])
 
-        interpreter.execute_block(self.declaration.body, env)
+        try:
+            interpreter.execute_block(self.declaration.body, env)
+        except lib.interpreter.Return as r:
+            return r.value
+
+        return None
 
     def arity(self):
         return len(self.declaration.parameters)

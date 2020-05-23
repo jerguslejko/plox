@@ -97,11 +97,8 @@ class Interpreter:
             return None
 
         if isinstance(node, ast.ReturnStatement):
-            value = self.evaluate(node.expression)
+            raise Return(self.evaluate(node.expression))
 
-            self.raise_return(value)
-
-            raise Return(value)
         raise ValueError(
             "[interpreter] Unsupported node type [%s]" % node.__class__.__name__
         )
@@ -246,19 +243,11 @@ class Interpreter:
                     % (callee.arity(), len(arguments)),
                 )
 
-            try:
-                callee.call(self, arguments)
-            except Return as r:
-                return r.value
-
-            return None
+            return callee.call(self, arguments)
 
         raise ValueError(
             "[interpreter] Unsupported expression type [%s]" % expr.__class__.__name__
         )
-
-    def raise_return(self, value):
-        raise Return(value)
 
     @staticmethod
     def from_code(code):

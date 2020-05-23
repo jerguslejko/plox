@@ -10,7 +10,7 @@ class ClockFunction(Callable):
         return 0
 
     def call(self, interpreter, arguments):
-        interpreter.raise_return(time())
+        return time()
 
 
 class SleepFunction(Callable):
