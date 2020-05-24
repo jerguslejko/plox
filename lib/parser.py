@@ -92,6 +92,9 @@ class Parser:
 
     def declaration(self):
         try:
+            if self.match_any(Type.CLASS):
+                return self.class_declaration()
+
             if self.match_any(Type.VAR):
                 return self.variable_declaration()
 
@@ -102,6 +105,18 @@ class Parser:
         except ParseError as e:
             self.synchronize(e)
             return None
+
+    def class_declaration(self):
+        name = self.consume(Type.IDENTIFIER, "Expected class name")
+        self.consume(Type.LEFT_BRACE, "Expected left brace")
+        methods = []
+
+        while not self.matches(Type.RIGHT_BRACE):
+            methods.append(self.function_declaration())
+
+        self.consume(Type.RIGHT_BRACE, "Expected right brace")
+
+        return ast.ClassDeclaration(name, methods)
 
     def variable_declaration(self):
         identifier = self.consume(Type.IDENTIFIER, "Expected variable name")
@@ -295,6 +310,9 @@ class Parser:
             if isinstance(left, ast.VariableExpression):
                 return ast.AssignmentExpression(left.variable, token, right)
 
+            if isinstance(left, ast.GetExpression):
+                return ast.SetExpression(left.object, left.name, right)
+
             raise self.error(token, "Invalid assignment target")
 
         return left
@@ -405,6 +423,9 @@ class Parser:
                 token = self.previous()
 
                 expr = ast.CallExpression(expr, token, arguments)
+            elif self.match_any(Type.DOT):
+                name = self.consume(Type.IDENTIFIER, "Expected property name after '.'")
+                expr = ast.GetExpression(expr, name)
             else:
                 break
 
@@ -425,6 +446,8 @@ class Parser:
             return ast.GroupingExpression(expr)
         if self.match_any(Type.IDENTIFIER):
             return ast.VariableExpression(self.previous())
+        if self.match_any(Type.THIS):
+            return ast.ThisExpression(self.previous())
 
         raise self.error(self.peek(), "Expected expression")
 

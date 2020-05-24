@@ -1,5 +1,18 @@
 from lib import ast
 from lib.error import ResolverError, CompileErrors
+from enum import Enum, auto
+
+
+class FunctionType(Enum):
+    NONE = auto()
+    FUNCTION = auto()
+    METHOD = auto()
+    INITIALIZER = auto()
+
+
+class ClassType(Enum):
+    NONE = auto()
+    CLASS = auto()
 
 
 class Resolver:
@@ -8,7 +21,8 @@ class Resolver:
         self.scopes = []
         self.bindings = {}
         self.errors = []
-        self.current_function = None
+        self.current_function = FunctionType.NONE
+        self.current_class = ClassType.NONE
 
     def run(self):
         self.resolve(self.ast)
@@ -87,6 +101,29 @@ class Resolver:
         self.end_scope()
         self.current_function = enclosing_function
 
+    def resolve_class(self, node):
+        enclosing_class = self.current_class
+        self.current_class = ClassType.CLASS
+
+        self.declare(node.name)
+
+        self.begin_scope()
+        self.inner_scope()["this"] = True
+
+        for method in node.methods:
+            declaration = FunctionType.METHOD
+
+            if method.name.lexeme == "init":
+                declaration = FunctionType.INITIALIZER
+
+            self.resolve_function(method, declaration)
+
+        self.define(node.name)
+
+        self.end_scope()
+
+        self.current_class = enclosing_class
+
     def resolve(self, node):
         if isinstance(node, ast.Program):
             for statement in node.statements:
@@ -96,8 +133,11 @@ class Resolver:
         if isinstance(node, ast.Block):
             return self.resolve_block(node)
 
+        if isinstance(node, ast.ClassDeclaration):
+            return self.resolve_class(node)
+
         if isinstance(node, ast.FunctionDeclaration):
-            return self.resolve_function(node, "FUNCTION")
+            return self.resolve_function(node, FunctionType.FUNCTION)
 
         if isinstance(node, ast.VariableDeclaration):
             return self.resolve_variable_declaration(node)
@@ -121,8 +161,11 @@ class Resolver:
             return
 
         if isinstance(node, ast.ReturnStatement):
-            if self.current_function == None:
+            if self.current_function == FunctionType.NONE:
                 self.error(node.token, "Cannot return from top-level code")
+
+            if self.current_function == FunctionType.INITIALIZER:
+                self.error(node.token, "Cannot return a value from an initializer")
 
             self.resolve(node.expression)
             return
@@ -163,12 +206,21 @@ class Resolver:
 
             return
 
+        if isinstance(node, ast.GetExpression):
+            self.resolve(node.object)
+            return
+
+        if isinstance(node, ast.SetExpression):
+            self.resolve(node.value)
+            self.resolve(node.object)
+            return
+
         if isinstance(node, ast.FunctionExpression):
-            self.resolve_anonymous_function(node, "FUNCTION")
+            self.resolve_anonymous_function(node, FunctionType.FUNCTION)
             return
 
         if isinstance(node, ast.LambdaExpression):
-            self.resolve_anonymous_function(node, "FUNCTION")
+            self.resolve_anonymous_function(node, FunctionType.FUNCTION)
             return
 
         if isinstance(node, ast.AssignmentExpression):
@@ -188,6 +240,13 @@ class Resolver:
 
         if isinstance(node, ast.UnaryExpression):
             self.resolve(node.right)
+            return
+
+        if isinstance(node, ast.ThisExpression):
+            if self.current_class == ClassType.NONE:
+                self.error(node, "Cannot use 'this' outside of a class")
+
+            self.resolve_local(node, node.token.lexeme)
             return
 
         raise ValueError("[resolver] unsupported ast node [%s]" % node.__class__)

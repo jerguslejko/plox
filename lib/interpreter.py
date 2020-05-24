@@ -7,6 +7,7 @@ from lib.environment import Environment
 from lib.scanner import Scanner
 from lib.parser import Parser
 from lib.io import RealPrinter, FakePrinter
+from lib.klass import Klass, Instance
 from lib.function import (
     Function,
     AnonymousFunction,
@@ -46,6 +47,21 @@ class Interpreter:
         if isinstance(node, ast.Program):
             for statement in node.statements:
                 self.execute(statement)
+            return None
+
+        if isinstance(node, ast.ClassDeclaration):
+            self.env.define(node.name, None)
+
+            methods = {}
+            for method in node.methods:
+                methods[method.name.lexeme] = Function(
+                    method, self.env, method.name.lexeme == "init"
+                )
+
+            klass = Klass(node.name.lexeme, methods)
+
+            self.env.assign(node.name, klass)
+
             return None
 
         if isinstance(node, ast.ExpressionStatement):
@@ -90,7 +106,7 @@ class Interpreter:
             return None
 
         if isinstance(node, ast.FunctionDeclaration):
-            fun = Function(node, self.env)
+            fun = Function(node, self.env, False)
 
             self.env.define(fun.identifier(), fun)
 
@@ -119,7 +135,7 @@ class Interpreter:
             return expr.value
 
         if isinstance(expr, ast.FunctionExpression):
-            return AnonymousFunction(expr, self.env)
+            return AnonymousFunction(expr, self.env, isInitializer=False)
 
         if isinstance(expr, ast.LambdaExpression):
             return self.evaluate(
@@ -244,6 +260,27 @@ class Interpreter:
                 )
 
             return callee.call(self, arguments)
+
+        if isinstance(expr, ast.GetExpression):
+            object = self.evaluate(expr.object)
+
+            if not isinstance(object, Instance):
+                raise RuntimeError(expr.name, "Only instances have properties")
+
+            return object.get(expr.name)
+
+        if isinstance(expr, ast.SetExpression):
+            object = self.evaluate(expr.object)
+
+            if not isinstance(object, Instance):
+                raise RuntimeError(expr.name, "Only instances have properties")
+
+            value = self.evaluate(expr.value)
+
+            return object.set(expr.name, value)
+
+        if isinstance(expr, ast.ThisExpression):
+            return self.lookup_variable(expr, expr.token)
 
         raise ValueError(
             "[interpreter] Unsupported expression type [%s]" % expr.__class__.__name__

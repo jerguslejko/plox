@@ -315,6 +315,36 @@ var two_sucks = twice(\\x -> x + 1);
 
         self.assertEqual(3, interpreter.evaluate(Parser.parse_expr("two_sucks(1)")))
 
+    def test_classes(self):
+        interpreter = Interpreter.from_code(
+            """
+class Foo {
+    init(baz) {
+        this.baz = baz;
+    }
+
+    bar() {
+        return "hey " + this.baz;
+    }
+}
+
+print Foo("qux").bar();
+"""
+        )
+        self.assertEqual(["hey qux"], interpreter.printer.get())
+
+    def test_initializer_returns_instance_implicitly(self):
+        interpreter = Interpreter.from_code(
+            """
+class Foo {
+    init() {}
+}
+
+print Foo().init();
+"""
+        )
+        self.assertEqual(["<instance Foo>"], interpreter.printer.get())
+
 
 def evaluate_expr(code):
     interpreter = Interpreter()

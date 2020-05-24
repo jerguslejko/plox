@@ -99,6 +99,28 @@ fun f() {
         else:
             self.fail("Expected exception")
 
+    def test_invalid_this(self):
+        ast = Parser.parse_code("print this;")
+
+        try:
+            Resolver(ast).run()
+        except CompileErrors as e:
+            self.assertEqual(["Cannot use 'this' outside of a class"], e.messages())
+        else:
+            self.fail("Expected exception")
+
+    def test_return_from_init(self):
+        ast = Parser.parse_code("class Foo { init() { return 3; } }")
+
+        try:
+            Resolver(ast).run()
+        except CompileErrors as e:
+            self.assertEqual(
+                ["Cannot return a value from an initializer"], e.messages()
+            )
+        else:
+            self.fail("Expected exception")
+
     @skip("resolver does not work for globals")
     def test_errors_for_global_variables(self):
         ast = Parser.parse_code(

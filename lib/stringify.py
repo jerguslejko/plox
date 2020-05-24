@@ -18,8 +18,13 @@ def stringify(value):
         return "false"
 
     from lib.function import Function
+    from lib.klass import Klass, Instance
 
-    if isinstance(value, Function):
+    if (
+        isinstance(value, Function)
+        or isinstance(value, Klass)
+        or isinstance(value, Instance)
+    ):
         return value.to_str()
 
     raise ValueError("[stringify] cannot stringify value [%s]" % value)

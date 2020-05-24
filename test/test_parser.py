@@ -789,6 +789,97 @@ class ParserTest(TestCase):
         self.assertTrue(Parser.is_expr("1"))
         self.assertFalse(Parser.is_expr("1;"))
 
+    def test_class(self):
+        self.assertParseTree(
+            ast.Program(
+                [ast.ClassDeclaration(Token(Type.IDENTIFIER, "foo", "foo", 1), [])]
+            ),
+            "class foo {}",
+        )
+
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ClassDeclaration(
+                        Token(Type.IDENTIFIER, "foo", "foo", 1),
+                        [
+                            ast.FunctionDeclaration(
+                                Token(Type.IDENTIFIER, "bar", "bar", 1),
+                                [],
+                                ast.Block([]),
+                            ),
+                            ast.FunctionDeclaration(
+                                Token(Type.IDENTIFIER, "baz", "baz", 1),
+                                [],
+                                ast.Block([]),
+                            ),
+                        ],
+                    )
+                ]
+            ),
+            "class foo { bar() {} baz() {} }",
+        )
+
+    def test_get_expression(self):
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.CallExpression(
+                            ast.GetExpression(
+                                ast.CallExpression(
+                                    ast.GetExpression(
+                                        ast.VariableExpression(
+                                            Token(Type.IDENTIFIER, "foo", "foo", 1)
+                                        ),
+                                        Token(Type.IDENTIFIER, "bar", "bar", 1),
+                                    ),
+                                    Token(Type.RIGHT_PAREN, ")", None, 1),
+                                    [
+                                        ast.VariableExpression(
+                                            Token(Type.IDENTIFIER, "baz", "baz", 1)
+                                        )
+                                    ],
+                                ),
+                                Token(Type.IDENTIFIER, "qux", "qux", 1),
+                            ),
+                            Token(Type.RIGHT_PAREN, ")", None, 1),
+                            [],
+                        )
+                    )
+                ]
+            ),
+            "foo.bar(baz).qux();",
+        )
+
+    def test_set_expressions(self):
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.SetExpression(
+                            ast.VariableExpression(Token(Type.IDENTIFIER, "a", "a", 1)),
+                            Token(Type.IDENTIFIER, "b", "b", 1),
+                            ast.VariableExpression(Token(Type.IDENTIFIER, "c", "c", 1)),
+                        )
+                    )
+                ]
+            ),
+            "a.b = c;",
+        )
+
+    def test_this_expression(self):
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.ThisExpression(Token(Type.THIS, "this", None, 1))
+                    )
+                ]
+            ),
+            "this;",
+        )
+
     # helpers
 
     def assertParseTree(self, tree, code):

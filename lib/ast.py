@@ -28,6 +28,12 @@ class Block(Statement):
         self.statements = statements
 
 
+class ClassDeclaration(Statement):
+    def __init__(self, name, methods):
+        self.name = name
+        self.methods = methods
+
+
 class ExpressionStatement(Statement):
     def __init__(self, expression):
         self.expression = expression
@@ -132,6 +138,19 @@ class CallExpression(Expression):
         self.arguments = arguments
 
 
+class GetExpression(Expression):
+    def __init__(self, object, name):
+        self.object = object
+        self.name = name
+
+
+class SetExpression(Expression):
+    def __init__(self, object, name, value):
+        self.object = object
+        self.name = name
+        self.value = value
+
+
 class FunctionExpression(Expression):
     def __init__(self, parameters, body):
         self.parameters = parameters
@@ -143,3 +162,8 @@ class LambdaExpression(Expression):
         self.parameters = parameters
         self.arrow = arrow
         self.expression = expression
+
+
+class ThisExpression(Expression):
+    def __init__(self, token):
+        self.token = token
