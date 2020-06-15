@@ -29,8 +29,9 @@ class Block(Statement):
 
 
 class ClassDeclaration(Statement):
-    def __init__(self, name, methods):
+    def __init__(self, name, super, methods):
         self.name = name
+        self.super = super
         self.methods = methods
 
 
@@ -167,3 +168,9 @@ class LambdaExpression(Expression):
 class ThisExpression(Expression):
     def __init__(self, token):
         self.token = token
+
+
+class SuperExpression(Expression):
+    def __init__(self, keyword, method):
+        self.keyword = keyword
+        self.method = method

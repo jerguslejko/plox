@@ -108,6 +108,13 @@ class Parser:
 
     def class_declaration(self):
         name = self.consume(Type.IDENTIFIER, "Expected class name")
+
+        superclass = None
+        if self.match_any(Type.LESS):
+            superclass = ast.VariableExpression(
+                self.consume(Type.IDENTIFIER, "Expected a superclass name")
+            )
+
         self.consume(Type.LEFT_BRACE, "Expected left brace")
         methods = []
 
@@ -116,7 +123,7 @@ class Parser:
 
         self.consume(Type.RIGHT_BRACE, "Expected right brace")
 
-        return ast.ClassDeclaration(name, methods)
+        return ast.ClassDeclaration(name, superclass, methods)
 
     def variable_declaration(self):
         identifier = self.consume(Type.IDENTIFIER, "Expected variable name")
@@ -448,6 +455,13 @@ class Parser:
             return ast.VariableExpression(self.previous())
         if self.match_any(Type.THIS):
             return ast.ThisExpression(self.previous())
+        if self.match_any(Type.SUPER):
+            keyword = self.previous()
+            self.consume(Type.DOT, "Expected '.' after 'super'")
+            identifier = self.consume(
+                Type.IDENTIFIER, "Expected superclass method name"
+            )
+            return ast.SuperExpression(keyword, identifier)
 
         raise self.error(self.peek(), "Expected expression")
 

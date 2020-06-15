@@ -13,6 +13,7 @@ class FunctionType(Enum):
 class ClassType(Enum):
     NONE = auto()
     CLASS = auto()
+    SUBCLASS = auto()
 
 
 class Resolver:
@@ -107,6 +108,17 @@ class Resolver:
 
         self.declare(node.name)
 
+        if node.super:
+            self.current_class = ClassType.SUBCLASS
+
+            if node.name.lexeme == node.super.variable.lexeme:
+                self.error(node.super.variable, "A class cannot inherit from itself")
+
+            self.resolve(node.super)
+
+            self.begin_scope()
+            self.inner_scope()["super"] = True
+
         self.begin_scope()
         self.inner_scope()["this"] = True
 
@@ -119,6 +131,9 @@ class Resolver:
             self.resolve_function(method, declaration)
 
         self.define(node.name)
+
+        if node.super:
+            self.end_scope()
 
         self.end_scope()
 
@@ -247,6 +262,15 @@ class Resolver:
                 self.error(node, "Cannot use 'this' outside of a class")
 
             self.resolve_local(node, node.token.lexeme)
+            return
+
+        if isinstance(node, ast.SuperExpression):
+            if self.current_class == ClassType.NONE:
+                self.error(node, "Cannot use 'super' outside of a class")
+            elif self.current_class != ClassType.SUBCLASS:
+                self.error(node, "Cannot use 'super' in a class with no superclass")
+
+            self.resolve_local(node, node.keyword.lexeme)
             return
 
         raise ValueError("[resolver] unsupported ast node [%s]" % node.__class__)

@@ -25,8 +25,9 @@ class Instance:
 
 
 class Klass(Callable):
-    def __init__(self, name, methods):
+    def __init__(self, name, super, methods):
         self.name = name
+        self.super = super
         self.methods = methods
 
     def arity(self):
@@ -49,6 +50,9 @@ class Klass(Callable):
     def find_method(self, name):
         if name in self.methods:
             return self.methods[name]
+
+        if self.super:
+            return self.super.find_method(name)
 
         return None
 

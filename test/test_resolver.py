@@ -178,3 +178,35 @@ fun foo() {
             )
         else:
             self.fail("Expected exception")
+
+    def test_self_inheritance_is_not_allowed(self):
+        ast = Parser.parse_code("class Foo < Foo {}")
+
+        try:
+            Resolver(ast).run()
+        except CompileErrors as e:
+            self.assertEqual(["A class cannot inherit from itself"], e.messages())
+        else:
+            self.fail("Expected exception")
+
+    def test_super_used_outside_of_class(self):
+        ast = Parser.parse_code("super.boo;")
+
+        try:
+            Resolver(ast).run()
+        except CompileErrors as e:
+            self.assertEqual(["Cannot use 'super' outside of a class"], e.messages())
+        else:
+            self.fail("expected exception")
+
+    def test_super_in_class_without_superclass(self):
+        ast = Parser.parse_code("class Foo { bar() { return super.f(); } }")
+
+        try:
+            Resolver(ast).run()
+        except CompileErrors as e:
+            self.assertEqual(
+                ["Cannot use 'super' in a class with no superclass"], e.messages()
+            )
+        else:
+            self.fail("expected exception")

@@ -52,13 +52,26 @@ class Interpreter:
         if isinstance(node, ast.ClassDeclaration):
             self.env.define(node.name, None)
 
+            superclass = None
+            if node.super:
+                superclass = self.evaluate(node.super)
+
+                if not isinstance(superclass, Klass):
+                    raise RuntimeError(node.super, "Superclass must be a class")
+
+                self.env = self.env.child()
+                self.env.define(identifier("super"), superclass)
+
             methods = {}
             for method in node.methods:
                 methods[method.name.lexeme] = Function(
                     method, self.env, method.name.lexeme == "init"
                 )
 
-            klass = Klass(node.name.lexeme, methods)
+            klass = Klass(node.name.lexeme, superclass, methods)
+
+            if node.super:
+                self.env = self.env.parent
 
             self.env.assign(node.name, klass)
 
@@ -278,6 +291,20 @@ class Interpreter:
             value = self.evaluate(expr.value)
 
             return object.set(expr.name, value)
+
+        if isinstance(expr, ast.SuperExpression):
+            distance = self.bindings[expr]
+            superclass = self.env.get_at(distance, identifier("super"))
+            object = self.env.get_at(distance - 1, identifier("this"))
+
+            method = superclass.find_method(expr.method.lexeme)
+
+            if method == None:
+                raise RuntimeError(
+                    expr.method, "Undefined method '%s'" % expr.method.lexeme
+                )
+
+            return method.bind(object)
 
         if isinstance(expr, ast.ThisExpression):
             return self.lookup_variable(expr, expr.token)

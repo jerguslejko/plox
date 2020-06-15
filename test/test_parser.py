@@ -792,7 +792,11 @@ class ParserTest(TestCase):
     def test_class(self):
         self.assertParseTree(
             ast.Program(
-                [ast.ClassDeclaration(Token(Type.IDENTIFIER, "foo", "foo", 1), [])]
+                [
+                    ast.ClassDeclaration(
+                        Token(Type.IDENTIFIER, "foo", "foo", 1), None, []
+                    )
+                ]
             ),
             "class foo {}",
         )
@@ -802,6 +806,7 @@ class ParserTest(TestCase):
                 [
                     ast.ClassDeclaration(
                         Token(Type.IDENTIFIER, "foo", "foo", 1),
+                        None,
                         [
                             ast.FunctionDeclaration(
                                 Token(Type.IDENTIFIER, "bar", "bar", 1),
@@ -878,6 +883,35 @@ class ParserTest(TestCase):
                 ]
             ),
             "this;",
+        )
+
+    def test_subclassing(self):
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ClassDeclaration(
+                        Token(Type.IDENTIFIER, "Foo", "Foo", 1),
+                        ast.VariableExpression(Token(Type.IDENTIFIER, "Bar", "Bar", 1)),
+                        [],
+                    )
+                ]
+            ),
+            "class Foo < Bar {}",
+        )
+
+    def test_super(self):
+        self.assertParseTree(
+            ast.Program(
+                [
+                    ast.ExpressionStatement(
+                        ast.SuperExpression(
+                            Token(Type.SUPER, "super", None, 1),
+                            Token(Type.IDENTIFIER, "bar", "bar", 1),
+                        )
+                    )
+                ]
+            ),
+            "super.bar;",
         )
 
     # helpers

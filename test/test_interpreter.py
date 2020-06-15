@@ -345,6 +345,71 @@ print Foo().init();
         )
         self.assertEqual(["<instance Foo>"], interpreter.printer.get())
 
+    def test_superclass_must_be_class(self):
+        try:
+            interpreter = Interpreter.from_code("var Bar = 1; class Foo < Bar {}")
+        except RuntimeError as e:
+            self.assertEqual("Superclass must be a class", e.message)
+        else:
+            self.fail("Expected exception")
+
+    def test_inheritance(self):
+        interpreter = Interpreter.from_code(
+            """
+class Bar {
+    bar() {
+        return 42;
+    }
+}
+
+class Foo < Bar {}
+
+print Foo().bar();
+"""
+        )
+        self.assertEqual(["42"], interpreter.printer.get())
+
+    def test_super(self):
+        interpreter = Interpreter.from_code(
+            """
+class Bar {
+    boo() {
+        return 21;
+    }
+}
+
+class Foo < Bar {
+    boo() {
+        return super.boo() * 2;
+    }
+}
+
+
+print Foo().boo();
+"""
+        )
+
+        self.assertEqual(["42"], interpreter.printer.get())
+
+    def test_missing_method_on_super(self):
+        try:
+            interpreter = Interpreter.from_code(
+                """
+    class Bar {}
+    class Foo < Bar {
+        boo() {
+            return super.boo() * 2;
+        }
+    }
+
+    print Foo().boo();
+    """
+            )
+        except RuntimeError as e:
+            self.assertEqual("Undefined method 'boo'", e.message)
+        else:
+            self.fail("Expected exception")
+
 
 def evaluate_expr(code):
     interpreter = Interpreter()
